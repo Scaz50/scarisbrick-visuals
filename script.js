@@ -42,6 +42,17 @@ if (albumLinks.length > 0) {
   }
 }
 
+// Mobile dropdown toggle
+const dropdownToggle = document.querySelector('.has-dropdown > a');
+if (dropdownToggle) {
+  dropdownToggle.addEventListener('click', event => {
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      event.preventDefault();
+      dropdownToggle.parentElement.classList.toggle('is-open');
+    }
+  });
+}
+
 // Gallery lightbox
 const galleryImages = Array.from(document.querySelectorAll('.grid img'));
 if (galleryImages.length > 0) {
