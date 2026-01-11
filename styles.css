@@ -18,6 +18,7 @@ html {
   --shadow: 0 24px 60px rgba(20, 20, 20, 0.12);
   --radius-lg: 28px;
   --radius-md: 18px;
+  --heading-font: 'Space Grotesk', sans-serif;
 }
 
 body {
@@ -97,13 +98,13 @@ header {
 }
 
 h1 {
-  font-family: 'Fraunces', serif;
+  font-family: var(--heading-font);
   font-size: clamp(2.6rem, 4vw, 4rem);
   margin-bottom: 0.5rem;
 }
 
 h2 {
-  font-family: 'Fraunces', serif;
+  font-family: var(--heading-font);
 }
 
 p {
@@ -179,7 +180,7 @@ section h2 {
 
 .site-nav,
 nav {
-  position: relative;
+  position: sticky;
   top: 0;
   width: 100%;
   padding: 1rem 2rem;
@@ -190,6 +191,7 @@ nav {
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.5rem;
+  box-shadow: 0 8px 20px rgba(20, 20, 20, 0.08);
 }
 
 .site-nav a,
@@ -254,7 +256,7 @@ nav a {
 }
 
 .portfolio-panel h3 {
-  font-family: 'Fraunces', serif;
+  font-family: var(--heading-font);
   font-size: 1.8rem;
 }
 
@@ -347,6 +349,35 @@ section {
   margin-top: 1.2rem;
 }
 
+.contact-form {
+  display: grid;
+  gap: 1rem;
+  max-width: 640px;
+}
+
+.contact-form label {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(30, 31, 36, 0.2);
+  font-family: inherit;
+  font-size: 1rem;
+  background: #ffffff;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(43, 138, 126, 0.15);
+}
+
 @media (max-width: 900px) {
   #about .about-grid {
     grid-template-columns: 1fr;
@@ -403,7 +434,7 @@ section {
 }
 
 .album-content h3 {
-  font-family: 'Fraunces', serif;
+  font-family: var(--heading-font);
   font-size: 2rem;
   margin-bottom: 0.5rem;
   color: var(--ink);

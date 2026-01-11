@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Funghi Gallery - Photography Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2&#8217;family=Fraunces:wght@400;600&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+    <title>Contact - Photography Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-WDYT5EG89R"></script>
@@ -19,14 +19,10 @@
 <body>
     <header class="page-header">
         <nav>
-
             <a href="index.html">Home</a>
-
             <div class="nav-item has-dropdown">
-
-            <a href="index.html#portfolio">Portfolio</a>
-
-            <div class="dropdown">
+                <a href="index.html#portfolio">Portfolio</a>
+                <div class="dropdown">
 
             <a href="landscapes-cityscapes-gallery.html">Landscapes and Cityscapes</a>
 
@@ -57,26 +53,27 @@
             <a href="funghi-gallery.html">Funghi</a>
 
             </div>
-
             </div>
-
             <a href="index.html#about">About Me</a>
-
             <a href="contact.html">Contact</a>
-
         </nav>
     </header>
     <main>
-        <section class="gallery">
-            <h2>Funghi Gallery</h2>
-            <div class="grid">
-            <img src="images/Funghi/Bunch%20of%20fungi%20%281%20of%201%29-3.jpg" alt="Funghi 1">
-            <img src="images/Funghi/Bunch%20of%20fungi%20%281%20of%201%29-4.jpg" alt="Funghi 2">
-            <img src="images/Funghi/Funghi%20Practice%20%282%20of%203%29.jpg" alt="Funghi 3">
-            <img src="images/Funghi/Glowing%20funghi%20%281%20of%201%29.jpg" alt="Funghi 4">
-            <img src="images/Funghi/macro%20funghi%20final%20%281%20of%201%29.jpg" alt="Funghi 5">
-            <img src="images/Funghi/Mushrooms%20%283%20of%2010%29.jpg" alt="Funghi 6">
-        </div>
+                <section id="contact">
+            <h2>Contact</h2>
+            <p>Use the form below or email <a href="mailto:chrisscarisbrick@hotmail.co.uk">chrisscarisbrick@hotmail.co.uk</a>.</p>
+            <form class="contact-form" action="mailto:chrisscarisbrick@hotmail.co.uk" method="post" enctype="text/plain">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" required>
+
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" required>
+
+                <label for="message">Message</label>
+                <textarea id="message" name="message" rows="6" required></textarea>
+
+                <button class="btn primary" type="submit">Send message</button>
+            </form>
         </section>
     </main>
     <footer>
