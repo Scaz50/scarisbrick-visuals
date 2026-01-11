@@ -545,6 +545,25 @@ section {
   }
 }
 
+@media (max-width: 900px) and (orientation: landscape) {
+  header {
+    height: 60vh;
+    min-height: 360px;
+  }
+
+  .logo {
+    height: 180px;
+  }
+
+  nav {
+    padding: 0.5rem 0.75rem;
+  }
+
+  nav a {
+    font-size: 0.85rem;
+  }
+}
+
 .home .carousel {
   position: relative;
   width: 100%;
