@@ -9,7 +9,13 @@ if (albumLinks.length > 0) {
         .map(src => src.trim())
         .filter(Boolean);
       if (!img || images.length < 2) return null;
-      return { img, images };
+      const loaded = new Set();
+      images.forEach(src => {
+        const preload = new Image();
+        preload.onload = () => loaded.add(src);
+        preload.src = src;
+      });
+      return { img, images, loaded };
     })
     .filter(Boolean);
 
@@ -23,9 +29,12 @@ if (albumLinks.length > 0) {
       albums.forEach(({ img }) => img.classList.add('is-fading'));
 
       setTimeout(() => {
-        albums.forEach(({ img, images }) => {
+        albums.forEach(({ img, images, loaded }) => {
           const next = globalIndex % images.length;
-          img.src = images[next];
+          const src = images[next];
+          if (loaded.has(src)) {
+            img.src = src;
+          }
         });
         albums.forEach(({ img }) => img.classList.remove('is-fading'));
       }, fadeDuration);
