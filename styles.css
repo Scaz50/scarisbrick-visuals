@@ -45,7 +45,7 @@ header {
   z-index: 3000;
 }
 
-.page-header nav {
+.page-header .site-nav {
   position: relative;
   background: rgba(255, 255, 255, 0.95);
   border-bottom: 1px solid rgba(30, 31, 36, 0.08);
@@ -176,7 +176,7 @@ section h2 {
   background: rgba(247, 241, 233, 0.2);
 }
 
-nav {
+.site-nav {
   position: relative;
   top: 0;
   width: 100%;
@@ -190,7 +190,7 @@ nav {
   gap: 0.5rem;
 }
 
-nav a {
+.site-nav a {
   color: var(--ink);
   margin: 0 1rem;
   text-decoration: none;
@@ -202,6 +202,23 @@ nav a {
   position: relative;
   display: flex;
   align-items: center;
+}
+
+.menu-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid rgba(30, 31, 36, 0.2);
+  color: var(--ink);
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .dropdown {
