@@ -399,13 +399,25 @@ section {
 
   .dropdown {
     position: static;
-    opacity: 0;
-    visibility: hidden;
+    display: none;
     transform: none;
     box-shadow: none;
     border: none;
     padding: 0.5rem 0 0.5rem;
     background: transparent;
+  }
+
+  .has-dropdown:hover .dropdown,
+  .has-dropdown:focus-within .dropdown {
+    opacity: 0;
+    visibility: hidden;
+    transform: none;
+  }
+
+  .has-dropdown.is-open .dropdown {
+    display: block;
+    opacity: 1;
+    visibility: visible;
   }
 
   .dropdown a {
