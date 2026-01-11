@@ -138,6 +138,55 @@ if (galleryImages.length > 0) {
   prevBtn.addEventListener('click', () => stepLightbox(-1));
   nextBtn.addEventListener('click', () => stepLightbox(1));
 
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchCurrentX = 0;
+  let touchCurrentY = 0;
+  let touchActive = false;
+
+  function onTouchStart(event) {
+    if (!lightbox.classList.contains('is-open')) return;
+    const touch = event.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchCurrentX = touchStartX;
+    touchCurrentY = touchStartY;
+    touchActive = true;
+    lightboxImg.style.transition = 'none';
+  }
+
+  function onTouchMove(event) {
+    if (!touchActive || !lightbox.classList.contains('is-open')) return;
+    const touch = event.touches[0];
+    touchCurrentX = touch.clientX;
+    touchCurrentY = touch.clientY;
+    const deltaX = touchCurrentX - touchStartX;
+    const deltaY = touchCurrentY - touchStartY;
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      lightboxImg.style.transform = `translateX(${deltaX}px)`;
+    }
+  }
+
+  function onTouchEnd(event) {
+    if (!touchActive || !lightbox.classList.contains('is-open')) return;
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+    touchActive = false;
+    lightboxImg.style.transition = '';
+    lightboxImg.style.transform = '';
+
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 40) {
+      if (deltaX > 0) {
+        stepLightbox(-1);
+      } else {
+        stepLightbox(1);
+      }
+    } else if (Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8) {
+      stepLightbox(1);
+    }
+  }
+
   lightbox.addEventListener('click', event => {
     if (event.target === lightbox) {
       closeLightbox();
@@ -150,4 +199,8 @@ if (galleryImages.length > 0) {
     if (event.key === 'ArrowLeft') stepLightbox(-1);
     if (event.key === 'ArrowRight') stepLightbox(1);
   });
+
+  lightboxImg.addEventListener('touchstart', onTouchStart, { passive: true });
+  lightboxImg.addEventListener('touchmove', onTouchMove, { passive: true });
+  lightboxImg.addEventListener('touchend', onTouchEnd);
 }
