@@ -33,6 +33,30 @@ if (albumLinks.length > 0) {
   }
 }
 
+// Mobile nav toggle
+const siteNav = document.querySelector('.site-nav');
+const menuToggle = document.querySelector('.menu-toggle');
+if (siteNav && menuToggle) {
+  menuToggle.addEventListener('click', () => {
+    const isOpen = siteNav.classList.toggle('is-open');
+    menuToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  siteNav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      siteNav.classList.remove('is-open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  document.addEventListener('click', event => {
+    if (!siteNav.contains(event.target)) {
+      siteNav.classList.remove('is-open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
 // Gallery lightbox
 const galleryImages = Array.from(document.querySelectorAll('.grid img'));
 if (galleryImages.length > 0) {
