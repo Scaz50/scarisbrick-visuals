@@ -42,13 +42,43 @@ if (albumLinks.length > 0) {
   }
 }
 
-// Mobile dropdown toggle
+// Mobile portfolio overlay
 const dropdownToggle = document.querySelector('.has-dropdown > a');
-if (dropdownToggle) {
+const dropdownLinks = Array.from(document.querySelectorAll('.dropdown a'));
+if (dropdownToggle && dropdownLinks.length > 0) {
+  const overlay = document.createElement('div');
+  overlay.className = 'portfolio-overlay';
+  overlay.innerHTML = `
+    <div class="portfolio-panel" role="dialog" aria-modal="true" aria-label="Portfolio">
+      <button class="portfolio-close" type="button" aria-label="Close">×</button>
+      <h3>Portfolio</h3>
+      <div class="portfolio-list"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const list = overlay.querySelector('.portfolio-list');
+  dropdownLinks.forEach(link => {
+    const clone = link.cloneNode(true);
+    clone.addEventListener('click', () => {
+      overlay.classList.remove('is-open');
+    });
+    list.appendChild(clone);
+  });
+
+  const closeBtn = overlay.querySelector('.portfolio-close');
+  const closeOverlay = () => overlay.classList.remove('is-open');
+  closeBtn.addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', event => {
+    if (event.target === overlay) {
+      closeOverlay();
+    }
+  });
+
   dropdownToggle.addEventListener('click', event => {
     if (window.matchMedia('(max-width: 900px)').matches) {
       event.preventDefault();
-      dropdownToggle.parentElement.classList.toggle('is-open');
+      overlay.classList.add('is-open');
     }
   });
 }

@@ -225,6 +225,69 @@ nav a {
   z-index: 3002;
 }
 
+.portfolio-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 20, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 4000;
+}
+
+.portfolio-overlay.is-open {
+  display: flex;
+}
+
+.portfolio-panel {
+  width: min(520px, 90vw);
+  max-height: 85vh;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: auto;
+}
+
+.portfolio-panel h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.8rem;
+}
+
+.portfolio-close {
+  align-self: flex-end;
+  border: none;
+  background: rgba(30, 31, 36, 0.08);
+  color: var(--ink);
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.portfolio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.portfolio-list a {
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 600;
+  padding: 0.5rem 0.25rem;
+}
+
+.portfolio-list a:hover,
+.portfolio-list a:focus {
+  color: var(--accent);
+}
+
 .has-dropdown.is-open .dropdown {
   opacity: 1;
   visibility: visible;
