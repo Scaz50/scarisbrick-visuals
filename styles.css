@@ -19,6 +19,7 @@ html {
   --radius-lg: 28px;
   --radius-md: 18px;
   --heading-font: 'Space Grotesk', sans-serif;
+  --nav-height: 64px;
 }
 
 body {
@@ -26,6 +27,7 @@ body {
   background: linear-gradient(180deg, var(--paper) 0%, #f2ece4 45%, #ffffff 100%);
   color: var(--ink);
   line-height: 1.7;
+  padding-top: var(--nav-height);
 }
 
 header {
@@ -180,10 +182,12 @@ section h2 {
 
 .site-nav,
 nav {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem;
   background: rgba(247, 241, 233, 0.85);
   backdrop-filter: blur(10px);
   z-index: 3000;
