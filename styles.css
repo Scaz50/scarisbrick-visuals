@@ -408,6 +408,25 @@ section {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.album-card.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.album-card.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .album-card.reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 .album-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 28px 70px rgba(20, 20, 20, 0.16);

@@ -83,6 +83,24 @@ if (dropdownToggle && dropdownLinks.length > 0) {
   });
 }
 
+// Mobile scroll reveal for portfolio tiles
+const revealCards = Array.from(document.querySelectorAll('.album-card'));
+if (revealCards.length > 0 && window.matchMedia('(max-width: 900px)').matches) {
+  revealCards.forEach(card => card.classList.add('reveal'));
+  const observer = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.2 }
+  );
+  revealCards.forEach(card => observer.observe(card));
+}
+
 // Gallery lightbox
 const galleryImages = Array.from(document.querySelectorAll('.grid img'));
 if (galleryImages.length > 0) {
