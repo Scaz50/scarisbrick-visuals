@@ -15,6 +15,7 @@ html {
   --sand: #ece3d6;
   --accent: #2b8a7e;
   --accent-dark: #1f6e64;
+  --accent-blue: #2f6fed;
   --shadow: 0 24px 60px rgba(20, 20, 20, 0.12);
   --radius-lg: 28px;
   --radius-md: 18px;
@@ -145,6 +146,20 @@ p {
 section h2 {
   font-size: clamp(2rem, 3vw, 2.6rem);
   margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.5rem;
+}
+
+section h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 60%;
+  height: 3px;
+  background: var(--accent-blue);
+  border-radius: 999px;
 }
 
 .btn {
@@ -196,6 +211,8 @@ nav {
   flex-wrap: wrap;
   gap: 0.5rem;
   box-shadow: 0 8px 20px rgba(20, 20, 20, 0.08);
+  --underline-left: 0px;
+  --underline-width: 0px;
 }
 
 .site-nav a,
@@ -836,4 +853,22 @@ footer {
 .grid img:hover {
   transform: scale(1.02);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+.site-nav::after,
+nav::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  left: var(--underline-left);
+  width: var(--underline-width);
+  height: 3px;
+  background: var(--accent-blue);
+  border-radius: 999px;
+  transition: width 0.2s ease, left 0.2s ease, opacity 0.2s ease;
+  opacity: 0;
+}
+
+.site-nav.is-underline::after,
+nav.is-underline::after {
+  opacity: 1;
 }

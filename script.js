@@ -83,6 +83,103 @@ if (dropdownToggle && dropdownLinks.length > 0) {
   });
 }
 
+// Nav underline hover
+const navBar = document.querySelector('nav');
+if (navBar) {
+  const navLinks = Array.from(
+    navBar.querySelectorAll(':scope > a, :scope > .nav-item > a')
+  );
+  let activeLink = null;
+
+  const updateUnderline = link => {
+    const navRect = navBar.getBoundingClientRect();
+    const linkRect = link.getBoundingClientRect();
+    navBar.style.setProperty('--underline-left', `${linkRect.left - navRect.left}px`);
+    navBar.style.setProperty('--underline-width', `${linkRect.width}px`);
+    navBar.classList.add('is-underline');
+  };
+
+  const clearUnderline = () => {
+    if (activeLink) {
+      updateUnderline(activeLink);
+      return;
+    }
+    navBar.classList.remove('is-underline');
+    navBar.style.setProperty('--underline-width', '0px');
+  };
+
+  const setActiveFromLocation = () => {
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const match = navLinks.find(link => {
+      const href = link.getAttribute('href') || '';
+      return href === currentPath || (currentPath === 'index.html' && href === 'index.html');
+    });
+    if (match) {
+      activeLink = match;
+      updateUnderline(match);
+    }
+  };
+
+  const setActiveFromScroll = () => {
+    const path = window.location.pathname.split('/').pop() || 'index.html';
+    if (path !== 'index.html') return;
+    const sections = ['portfolio', 'about']
+      .map(id => document.getElementById(id))
+      .filter(Boolean);
+    let current = 'home';
+    const marker = navBar.offsetHeight + 20;
+    sections.forEach(section => {
+      const rect = section.getBoundingClientRect();
+      if (rect.top <= marker && rect.bottom > marker) {
+        current = section.id;
+      }
+    });
+    const scrollBottom = window.scrollY + window.innerHeight;
+    const docHeight = document.documentElement.scrollHeight;
+    if (docHeight - scrollBottom < 80) {
+      current = 'about';
+    }
+    let target = null;
+    if (current === 'home') {
+      target = navLinks.find(link => link.getAttribute('href') === 'index.html');
+    } else {
+      target = navLinks.find(link => {
+        const href = link.getAttribute('href') || '';
+        return href === `#${current}` || href === `index.html#${current}`;
+      });
+    }
+    if (target) {
+      activeLink = target;
+      updateUnderline(target);
+    }
+  };
+
+  navLinks.forEach(link => {
+    link.addEventListener('mouseenter', () => {
+      activeLink = link;
+      updateUnderline(link);
+    });
+    link.addEventListener('focus', () => {
+      activeLink = link;
+      updateUnderline(link);
+    });
+  });
+
+  navBar.addEventListener('mouseleave', clearUnderline);
+  navBar.addEventListener('focusout', event => {
+    if (!navBar.contains(event.relatedTarget)) {
+      clearUnderline();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (activeLink) updateUnderline(activeLink);
+  });
+
+  setActiveFromLocation();
+  window.addEventListener('scroll', setActiveFromScroll, { passive: true });
+}
+
 // Mobile scroll reveal for portfolio tiles
 const revealCards = Array.from(document.querySelectorAll('.album-card'));
 if (revealCards.length > 0 && window.matchMedia('(max-width: 900px)').matches) {
