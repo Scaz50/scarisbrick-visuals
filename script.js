@@ -86,8 +86,8 @@ if (dropdownToggle && dropdownLinks.length > 0) {
 // Nav underline hover
 const navBar = document.querySelector('nav');
 if (navBar) {
-  const navLinks = Array.from(
-    navBar.querySelectorAll(':scope > a, :scope > .nav-item > a')
+  const navLinks = Array.from(navBar.querySelectorAll('a')).filter(
+    link => !link.closest('.dropdown')
   );
   let activeLink = null;
 
@@ -110,6 +110,17 @@ if (navBar) {
 
   const setActiveFromLocation = () => {
     const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    if (currentPath.endsWith('-gallery.html')) {
+      const portfolioLink = navLinks.find(link => {
+        const href = link.getAttribute('href') || '';
+        return href === 'index.html#portfolio' || href === '#portfolio';
+      });
+      if (portfolioLink) {
+        activeLink = portfolioLink;
+        updateUnderline(portfolioLink);
+        return;
+      }
+    }
     const match = navLinks.find(link => {
       const href = link.getAttribute('href') || '';
       return href === currentPath || (currentPath === 'index.html' && href === 'index.html');
