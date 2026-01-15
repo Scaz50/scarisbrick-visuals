@@ -31,6 +31,7 @@ body {
   padding-top: var(--nav-height);
 }
 
+
 header {
   position: relative;
   height: 90vh;
@@ -212,6 +213,7 @@ nav {
   box-shadow: 0 8px 20px rgba(20, 20, 20, 0.08);
   --underline-left: 0px;
   --underline-width: 0px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .site-nav a,
@@ -779,6 +781,14 @@ footer {
   overflow: hidden;
 }
 
+body.lightbox-open nav,
+body.lightbox-open .site-nav {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+
 .lightbox {
   position: fixed;
   inset: 0;
@@ -789,7 +799,7 @@ footer {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease;
-  z-index: 1000;
+  z-index: 5000;
 }
 
 .lightbox.is-open {
