@@ -51,7 +51,6 @@ header {
 
 .page-header .site-nav,
 .page-header nav {
-  position: relative;
   background: rgba(255, 255, 255, 0.95);
   border-bottom: 1px solid rgba(30, 31, 36, 0.08);
   z-index: 3001;
