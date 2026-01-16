@@ -98,7 +98,12 @@ header {
   height: 320px;
   transform: translate(-50%, -50%);
   max-width: 100%;
-  pointer-events: none;
+  pointer-events: auto;
+  transition: transform 0.25s ease;
+}
+
+.logo:hover {
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 h1 {
@@ -113,18 +118,6 @@ h2 {
 
 p {
   font-size: 1.05rem;
-}
-
-.hero-copy {
-  max-width: 560px;
-  color: #f7f1e9;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  position: absolute;
-  left: 8vw;
-  bottom: 8vh;
-  pointer-events: auto;
 }
 
 .hero-badges {
