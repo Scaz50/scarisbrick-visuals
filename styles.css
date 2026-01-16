@@ -88,7 +88,7 @@ header {
   text-align: left;
   padding: 0 8vw 8vh;
   z-index: 10;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .logo {
@@ -98,6 +98,7 @@ header {
   height: 320px;
   transform: translate(-50%, -50%);
   max-width: 100%;
+  pointer-events: none;
 }
 
 h1 {
@@ -124,6 +125,115 @@ p {
   left: 8vw;
   bottom: 8vh;
   pointer-events: auto;
+}
+
+.hero-badges {
+  position: absolute;
+  top: 6vh;
+  left: 8vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.hero-pin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(15, 17, 22, 0.55);
+  color: rgba(247, 241, 233, 0.95);
+  cursor: default;
+}
+
+.hero-pin svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.hero-pin-label {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.2s ease, opacity 0.2s ease;
+}
+
+.hero-pin:hover .hero-pin-label,
+.hero-pin:focus-within .hero-pin-label {
+  max-width: 260px;
+  opacity: 1;
+}
+
+.hero-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(15, 17, 22, 0.55);
+  color: rgba(247, 241, 233, 0.95);
+  cursor: default;
+}
+
+.hero-date svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.hero-date-label {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.2s ease, opacity 0.2s ease;
+}
+
+.hero-date:hover .hero-date-label,
+.hero-date:focus-within .hero-date-label {
+  max-width: 220px;
+  opacity: 1;
+}
+
+.hero-exposure {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(15, 17, 22, 0.55);
+  color: rgba(247, 241, 233, 0.95);
+  cursor: default;
+}
+
+.hero-exposure svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.hero-exposure-label {
+  display: inline-flex;
+  gap: 0.6rem;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.2s ease, opacity 0.2s ease;
+}
+
+.hero-exposure-label span {
+  display: inline-block;
+}
+
+.hero-exposure:hover .hero-exposure-label,
+.hero-exposure:focus-within .hero-exposure-label {
+  max-width: 320px;
+  opacity: 1;
 }
 
 
