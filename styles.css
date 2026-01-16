@@ -15,7 +15,7 @@ html {
   --sand: #ece3d6;
   --accent: #2b8a7e;
   --accent-dark: #1f6e64;
-  --accent-blue: #2f6fed;
+  --accent-blue: #2b8a7e;
   --shadow: 0 24px 60px rgba(20, 20, 20, 0.12);
   --radius-lg: 28px;
   --radius-md: 18px;
@@ -125,6 +125,7 @@ p {
   bottom: 8vh;
   pointer-events: auto;
 }
+
 
 .hero-title {
   color: #f9f4ee;
@@ -741,6 +742,34 @@ footer {
   padding: 2rem 1rem;
   color: var(--slate);
   background: var(--paper);
+}
+
+.social-links {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.social-links a {
+  color: var(--slate);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.social-links a:hover,
+.social-links a:focus {
+  color: var(--accent);
+}
+
+.social-links svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 .strapline {
