@@ -324,6 +324,7 @@ const initGalleryCaptions = async () => {
   const gallery = document.querySelector('.gallery');
   const grid = gallery ? gallery.querySelector('.grid') : null;
   if (!gallery || !grid) return;
+  document.body.classList.add('show-caption-editor');
 
   const pageName = window.location.pathname.split('/').pop() || 'gallery';
   const pageKey = pageName.replace(/[^a-z0-9_-]+/gi, '-').toLowerCase();
