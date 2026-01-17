@@ -5,6 +5,7 @@ function initExifFilters(data) {
   const grid = gallery ? gallery.querySelector('.grid') : null;
   if ((gallery && !grid) || (!gallery && !portfolioGrid)) return;
   const isPortfolio = Boolean(portfolioGrid && !gallery);
+  let allCaptionsByKey = window.allGalleryCaptionsByKey || {};
 
   const normalizePath = value => {
     if (!value) return '';
@@ -49,6 +50,23 @@ function initExifFilters(data) {
   const items = gallery
     ? Array.from(grid.querySelectorAll('img')).map(buildImageItem)
     : Array.from(portfolioGrid.querySelectorAll('.album-card')).map(buildAlbumItem);
+
+  const applyCaptionsFromData = captionsData => {
+    if (!captionsData || typeof captionsData !== 'object') return;
+    const nextCaptions = {};
+    Object.keys(captionsData).forEach(pageKey => {
+      const entries = captionsData[pageKey];
+      if (!entries || typeof entries !== 'object') return;
+      Object.keys(entries).forEach(pathKey => {
+        const key = normalizePath(pathKey);
+        if (key) {
+          nextCaptions[key] = entries[pathKey];
+        }
+      });
+    });
+    allCaptionsByKey = nextCaptions;
+    window.allGalleryCaptionsByKey = nextCaptions;
+  };
 
   const portfolioImages = isPortfolio
     ? (() => {
@@ -246,7 +264,7 @@ function initExifFilters(data) {
           const img = document.createElement('img');
           img.src = src;
           img.alt = 'Filtered image';
-          const captionsByKey = window.galleryCaptionsByKey || {};
+          const captionsByKey = window.galleryCaptionsByKey || allCaptionsByKey;
           const captionKey = normalizePath(src);
           if (captionsByKey[captionKey]) {
             img.dataset.caption = captionsByKey[captionKey];
@@ -266,6 +284,16 @@ function initExifFilters(data) {
     input.addEventListener('input', applyFilters);
     input.addEventListener('change', applyFilters);
   });
+
+  fetch('data/captions.json', { cache: 'no-store' })
+    .then(response => (response.ok ? response.json() : null))
+    .then(captionsData => {
+      if (captionsData) {
+        applyCaptionsFromData(captionsData);
+        applyFilters();
+      }
+    })
+    .catch(() => {});
 
   const setActiveLens = value => {
     if (!lensInput || !lensButtons) return;
@@ -757,7 +785,7 @@ if (hasLightboxTargets) {
         return figcaption.textContent.trim();
       }
     }
-    const captionsByKey = window.galleryCaptionsByKey || {};
+    const captionsByKey = window.galleryCaptionsByKey || window.allGalleryCaptionsByKey || {};
     const fullSrc = target.getAttribute('data-full') || target.getAttribute('src');
     const key = normalizeCaptionKey(fullSrc);
     return captionsByKey[key] || '';
