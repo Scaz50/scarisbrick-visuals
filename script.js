@@ -530,13 +530,6 @@ const initGalleryCaptions = async () => {
     setEditorToggleLabel();
   });
 
-  document.addEventListener('keydown', event => {
-    if (!(event.ctrlKey && event.shiftKey)) return;
-    if (event.key.toLowerCase() !== 'c') return;
-    event.preventDefault();
-    document.body.classList.toggle('show-caption-editor');
-    setEditorToggleLabel();
-  });
   grid.insertAdjacentElement('beforebegin', editorToggle);
   editorToggle.insertAdjacentElement('afterend', toolbar);
 
