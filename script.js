@@ -1,3 +1,131 @@
+let exifLookup = null;
+
+const normalizeImagePath = value => {
+  if (!value) return '';
+  const normalized = decodeURIComponent(String(value)).replace(/\\/g, '/');
+  const imagesIndex = normalized.toLowerCase().lastIndexOf('/images/');
+  if (imagesIndex >= 0) {
+    return normalized.slice(imagesIndex + 1).toLowerCase();
+  }
+  return normalized.replace(/^\/+/, '').toLowerCase();
+};
+
+const buildExifLookup = data => {
+  if (!Array.isArray(data)) return new Map();
+  const map = new Map();
+  data.forEach(entry => {
+    if (!entry || !entry.SourceFile) return;
+    const key = normalizeImagePath(entry.SourceFile);
+    if (key) map.set(key, entry);
+  });
+  return map;
+};
+
+const getExifForImage = img => {
+  if (!img || !exifLookup) return null;
+  const fullSrc = img.getAttribute('data-full') || img.getAttribute('src');
+  const key = normalizeImagePath(fullSrc);
+  return exifLookup.get(key) || null;
+};
+
+const formatShutter = exposure => {
+  if (exposure === null || exposure === undefined || exposure === '') return '';
+  if (typeof exposure === 'string') {
+    const trimmed = exposure.trim();
+    if (trimmed.includes('/')) return `${trimmed}s`;
+    const parsed = Number(trimmed);
+    if (!Number.isNaN(parsed)) return formatShutter(parsed);
+    return '';
+  }
+  const value = Number(exposure);
+  if (Number.isNaN(value) || value <= 0) return '';
+  if (value >= 1) {
+    return `${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)}s`;
+  }
+  const reciprocal = Math.round(1 / value);
+  return `1/${reciprocal}s`;
+};
+
+const formatExposureData = exif => {
+  if (!exif) return '';
+  const parts = [];
+  const fNumber = exif.FNumber;
+  if (fNumber) {
+    const fValue = Number(fNumber);
+    parts.push(`f/${Number.isNaN(fValue) ? fNumber : fValue}`);
+  }
+  const shutter = formatShutter(exif.ExposureTime);
+  if (shutter) parts.push(shutter);
+  const iso = exif.ISO;
+  if (iso) parts.push(`ISO ${iso}`);
+  const focal = exif.FocalLength;
+  if (focal) {
+    const focalValue = Number(focal);
+    const label = Number.isNaN(focalValue)
+      ? focal
+      : focalValue % 1 === 0
+        ? focalValue.toFixed(0)
+        : focalValue.toFixed(1);
+    parts.push(`${label} mm`);
+  }
+  return parts.join(' • ');
+};
+
+const addExifOverlay = (figure, img, media) => {
+  if (!figure || !img || !media) return;
+  if (media.querySelector('.exif-info-button')) return;
+  const exif = getExifForImage(img);
+  const exposureLabel = formatExposureData(exif);
+  if (!exposureLabel) return;
+
+  const infoButton = document.createElement('button');
+  infoButton.type = 'button';
+  infoButton.className = 'exif-info-button';
+  infoButton.textContent = 'i';
+  infoButton.setAttribute('aria-label', 'Show exposure details');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'exif-info-overlay';
+  const overlayText = document.createElement('span');
+  overlayText.textContent = exposureLabel;
+  overlay.appendChild(overlayText);
+
+  infoButton.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    media.classList.toggle('show-exif-info');
+  });
+
+  overlay.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    media.classList.remove('show-exif-info');
+  });
+
+  media.appendChild(infoButton);
+  media.appendChild(overlay);
+};
+
+const applyExifOverlaysToGallery = () => {
+  if (!exifLookup) return;
+  const gallery = document.querySelector('.gallery');
+  if (!gallery) return;
+  const figures = Array.from(gallery.querySelectorAll('.gallery-item'));
+  figures.forEach(figure => {
+    const img = figure.querySelector('img');
+    if (!img) return;
+    let media = figure.querySelector('.gallery-media');
+    if (!media) {
+      media = document.createElement('div');
+      media.className = 'gallery-media';
+      const caption = figure.querySelector('.gallery-caption');
+      figure.insertBefore(media, caption || null);
+      media.appendChild(img);
+    }
+    addExifOverlay(figure, img, media);
+  });
+};
+
 function initExifFilters(data) {
   const gallery = document.querySelector('.gallery');
   const portfolio = document.querySelector('#portfolio');
@@ -7,24 +135,9 @@ function initExifFilters(data) {
   const isPortfolio = Boolean(portfolioGrid && !gallery);
   let allCaptionsByKey = window.allGalleryCaptionsByKey || {};
 
-  const normalizePath = value => {
-    if (!value) return '';
-    const normalized = decodeURIComponent(String(value)).replace(/\\/g, '/');
-    const imagesIndex = normalized.toLowerCase().lastIndexOf('/images/');
-    if (imagesIndex >= 0) {
-      return normalized.slice(imagesIndex + 1).toLowerCase();
-    }
-    return normalized.replace(/^\/+/, '').toLowerCase();
-  };
+  const normalizePath = normalizeImagePath;
 
-  const exifByPath = new Map();
-  data.forEach(entry => {
-    if (!entry || !entry.SourceFile) return;
-    const key = normalizePath(entry.SourceFile);
-    if (key) {
-      exifByPath.set(key, entry);
-    }
-  });
+  const exifByPath = buildExifLookup(data);
 
   const buildImageItem = img => {
     const src = img.getAttribute('src') || '';
@@ -342,7 +455,9 @@ fetch('data/exif.json')
   })
   .then(data => {
     window.exifData = data;
+    exifLookup = buildExifLookup(data);
     initExifFilters(data);
+    applyExifOverlaysToGallery();
   })
   .catch(error => {
     console.warn(error.message);
@@ -356,15 +471,7 @@ const initGalleryCaptions = async () => {
   const pageName = window.location.pathname.split('/').pop() || 'gallery';
   const pageKey = pageName.replace(/[^a-z0-9_-]+/gi, '-').toLowerCase();
   const storageKey = `galleryCaptions:${pageKey}`;
-  const normalizeSrc = value => {
-    if (!value) return '';
-    const normalized = decodeURIComponent(String(value)).replace(/\\/g, '/');
-    const imagesIndex = normalized.toLowerCase().lastIndexOf('/images/');
-    if (imagesIndex >= 0) {
-      return normalized.slice(imagesIndex + 1).toLowerCase();
-    }
-    return normalized.replace(/^\/+/, '').toLowerCase();
-  };
+  const normalizeSrc = normalizeImagePath;
 
   let sharedCaptions = {};
   try {
@@ -417,6 +524,14 @@ const initGalleryCaptions = async () => {
     document.body.classList.toggle('show-caption-editor');
     setEditorToggleLabel();
   });
+
+  document.addEventListener('keydown', event => {
+    if (!(event.ctrlKey && event.shiftKey)) return;
+    if (event.key.toLowerCase() !== 'c') return;
+    event.preventDefault();
+    document.body.classList.toggle('show-caption-editor');
+    setEditorToggleLabel();
+  });
   grid.insertAdjacentElement('beforebegin', editorToggle);
   editorToggle.insertAdjacentElement('afterend', toolbar);
 
@@ -442,10 +557,15 @@ const initGalleryCaptions = async () => {
     updateEmptyState(caption);
     img.dataset.caption = caption.textContent;
 
+    const media = document.createElement('div');
+    media.className = 'gallery-media';
+
     img.parentNode.insertBefore(figure, img);
-    figure.appendChild(img);
+    figure.appendChild(media);
+    media.appendChild(img);
     figure.appendChild(caption);
     captionEntries.push({ caption, key, img });
+    addExifOverlay(figure, img, media);
   });
 
   const saveCaptions = () => {
@@ -821,15 +941,19 @@ if (hasLightboxTargets) {
   lightbox.setAttribute('aria-hidden', 'true');
   lightbox.innerHTML = `
     <button class="lightbox-close" aria-label="Close">X</button>
+    <button class="lightbox-info-toggle" aria-label="Show exposure details">i</button>
     <button class="lightbox-prev" aria-label="Previous">&lt;</button>
     <img src="" alt="Gallery image" />
     <div class="lightbox-caption" aria-live="polite"></div>
+    <div class="lightbox-exif" aria-live="polite"><span></span></div>
     <button class="lightbox-next" aria-label="Next">&gt;</button>
   `;
   document.body.appendChild(lightbox);
 
   const lightboxImg = lightbox.querySelector('img');
   const lightboxCaption = lightbox.querySelector('.lightbox-caption');
+  const lightboxInfoToggle = lightbox.querySelector('.lightbox-info-toggle');
+  const lightboxExif = lightbox.querySelector('.lightbox-exif');
   const closeBtn = lightbox.querySelector('.lightbox-close');
   const prevBtn = lightbox.querySelector('.lightbox-prev');
   const nextBtn = lightbox.querySelector('.lightbox-next');
@@ -866,6 +990,21 @@ if (hasLightboxTargets) {
     return captionsByKey[key] || '';
   };
 
+  const setLightboxExif = target => {
+    if (!lightboxExif || !lightboxInfoToggle) return;
+    const exif = getExifForImage(target);
+    const exposureLabel = formatExposureData(exif);
+    const textTarget = lightboxExif.querySelector('span');
+    if (exposureLabel) {
+      textTarget.textContent = exposureLabel;
+      lightboxInfoToggle.style.display = '';
+    } else {
+      textTarget.textContent = '';
+      lightboxInfoToggle.style.display = 'none';
+      lightbox.classList.remove('is-exif-open');
+    }
+  };
+
   const setLightboxCaption = target => {
     if (!lightboxCaption) return;
     const caption = getCaptionForImage(target);
@@ -883,6 +1022,7 @@ if (hasLightboxTargets) {
     lightboxImg.setAttribute('src', fullSrc);
     lightboxImg.setAttribute('alt', alt);
     setLightboxCaption(target);
+    setLightboxExif(target);
     lightbox.classList.add('is-open');
     lightbox.setAttribute('aria-hidden', 'false');
     document.body.classList.add('no-scroll');
@@ -890,6 +1030,7 @@ if (hasLightboxTargets) {
 
   function closeLightbox() {
     lightbox.classList.remove('is-open');
+    lightbox.classList.remove('is-exif-open');
     lightbox.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('no-scroll');
   }
@@ -903,6 +1044,7 @@ if (hasLightboxTargets) {
     lightboxImg.setAttribute('src', fullSrc);
     lightboxImg.setAttribute('alt', alt);
     setLightboxCaption(target);
+    setLightboxExif(target);
   }
 
   document.addEventListener('click', event => {
@@ -917,6 +1059,12 @@ if (hasLightboxTargets) {
   closeBtn.addEventListener('click', closeLightbox);
   prevBtn.addEventListener('click', () => stepLightbox(-1));
   nextBtn.addEventListener('click', () => stepLightbox(1));
+  lightboxInfoToggle.addEventListener('click', () => {
+    lightbox.classList.toggle('is-exif-open');
+  });
+  lightboxExif.addEventListener('click', () => {
+    lightbox.classList.remove('is-exif-open');
+  });
 
   let touchStartX = 0;
   let touchStartY = 0;
