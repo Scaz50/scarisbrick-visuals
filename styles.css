@@ -19,16 +19,18 @@ html {
   --shadow: 0 24px 60px rgba(20, 20, 20, 0.12);
   --radius-lg: 28px;
   --radius-md: 18px;
-  --heading-font: 'Space Grotesk', sans-serif;
+  --heading-font: 'Cormorant Garamond', serif;
   --nav-height: 64px;
 }
 
 body {
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Inter', sans-serif;
   background: linear-gradient(180deg, var(--paper) 0%, #f2ece4 45%, #ffffff 100%);
   color: var(--ink);
-  line-height: 1.7;
+  line-height: 1.6;
   padding-top: var(--nav-height);
+  font-weight: 400;
+  font-size: 17.5px;
 }
 
 
@@ -117,7 +119,7 @@ h2 {
 }
 
 p {
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .hero-badges {
@@ -144,11 +146,13 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.35rem 0.6rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 999px;
   background: rgba(15, 17, 22, 0.55);
   color: rgba(247, 241, 233, 0.95);
   cursor: default;
+  line-height: 1.1;
+  font-size: 0.95rem;
 }
 
 .hero-pin svg {
@@ -163,6 +167,7 @@ p {
   overflow: hidden;
   white-space: nowrap;
   transition: max-width 0.2s ease, opacity 0.2s ease;
+  line-height: 1.1;
 }
 
 .hero-pin:hover .hero-pin-label,
