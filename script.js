@@ -538,36 +538,111 @@ if (albumLinks.length > 0) {
         .map(src => src.trim())
         .filter(Boolean);
       if (!img || images.length < 2) return null;
+      let frame = link.querySelector('.album-image-frame');
+      let currentImg = img;
+      let nextImg = link.querySelector('img.is-next');
+      if (!frame) {
+        frame = document.createElement('span');
+        frame.className = 'album-image-frame';
+        currentImg.classList.add('album-image', 'is-current');
+        currentImg.parentNode.insertBefore(frame, currentImg);
+        frame.appendChild(currentImg);
+        nextImg = currentImg.cloneNode(false);
+        nextImg.classList.add('album-image', 'is-next');
+        frame.appendChild(nextImg);
+      } else {
+        currentImg.classList.add('album-image', 'is-current');
+        if (nextImg) nextImg.classList.add('album-image', 'is-next');
+      }
       const loaded = new Set();
       images.forEach(src => {
         const preload = new Image();
         preload.onload = () => loaded.add(src);
         preload.src = src;
       });
-      return { img, images, loaded };
+      return { frame, currentImg, nextImg, images, loaded };
     })
     .filter(Boolean);
 
   if (albums.length > 0) {
-    const displayDuration = 8000;
-    const fadeDuration = 2000;
+    const displayDuration = 6400;
+    const slideDuration = 600;
     let globalIndex = 0;
 
-    setInterval(() => {
-      globalIndex += 1;
-      albums.forEach(({ img }) => img.classList.add('is-fading'));
+    const ensureLoaded = (src, loaded) =>
+      new Promise(resolve => {
+        if (loaded.has(src)) {
+          resolve(true);
+          return;
+        }
+        const preload = new Image();
+        preload.onload = () => {
+          loaded.add(src);
+          resolve(true);
+        };
+        preload.onerror = () => resolve(false);
+        preload.src = src;
+      });
 
+    const ensureDecoded = img =>
+      new Promise(resolve => {
+        if (!img) {
+          resolve();
+          return;
+        }
+        if (img.decode) {
+          img.decode().then(resolve).catch(resolve);
+          return;
+        }
+        if (img.complete) {
+          resolve();
+          return;
+        }
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+      });
+
+    const advanceAlbums = async () => {
+      globalIndex += 1;
+      const nextBatch = albums.map(album => {
+        const next = globalIndex % album.images.length;
+        return { album, src: album.images[next] };
+      });
+
+      await Promise.all(
+        nextBatch.map(({ album, src }) => ensureLoaded(src, album.loaded))
+      );
+
+      nextBatch.forEach(({ album, src }) => {
+        if (album.nextImg) album.nextImg.src = src;
+      });
+      await Promise.all(nextBatch.map(({ album }) => ensureDecoded(album.nextImg)));
+      albums.forEach(({ frame }) => frame.classList.add('is-sliding'));
       setTimeout(() => {
-        albums.forEach(({ img, images, loaded }) => {
-          const next = globalIndex % images.length;
-          const src = images[next];
-          if (loaded.has(src)) {
-            img.src = src;
-          }
+        nextBatch.forEach(({ album }) => {
+          if (!album.currentImg || !album.nextImg) return;
+          album.currentImg.classList.remove('is-current');
+          album.currentImg.classList.add('is-next');
+          album.nextImg.classList.remove('is-next');
+          album.nextImg.classList.add('is-current');
+          [album.currentImg, album.nextImg] = [album.nextImg, album.currentImg];
         });
-        albums.forEach(({ img }) => img.classList.remove('is-fading'));
-      }, fadeDuration);
-    }, displayDuration);
+        albums.forEach(({ frame }) => {
+          frame.classList.add('is-resetting');
+          frame.classList.remove('is-sliding');
+          void frame.offsetWidth;
+          frame.classList.remove('is-resetting');
+        });
+      }, slideDuration);
+    };
+
+    const scheduleNext = async () => {
+      await new Promise(resolve => setTimeout(resolve, displayDuration));
+      await advanceAlbums();
+      scheduleNext();
+    };
+
+    scheduleNext();
   }
 }
 
