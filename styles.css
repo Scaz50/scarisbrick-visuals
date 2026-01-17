@@ -71,6 +71,7 @@ header {
   inset: 0;
   background: linear-gradient(120deg, rgba(15, 17, 22, 0.72) 0%, rgba(15, 17, 22, 0.35) 45%, rgba(15, 17, 22, 0.1) 100%);
   pointer-events: none;
+  z-index: 3;
 }
 
 .hero-image {
@@ -1219,6 +1220,39 @@ body:not(.show-exif-filters) .exif-matches {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
 }
 
+.exif-info-hint {
+  position: absolute;
+  top: 10px;
+  right: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transform: translateX(6px);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.exif-info-hint::after {
+  content: "->";
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.gallery-media.show-exif-info .exif-info-hint {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .exif-info-button:hover,
 .exif-info-button:focus-visible {
   background: rgba(15, 17, 22, 0.75);
@@ -1445,6 +1479,35 @@ body.lightbox-open .site-nav {
   background: rgba(0, 0, 0, 0.45);
   font-weight: 600;
   letter-spacing: 0.01em;
+}
+
+.lightbox-exif-hint {
+  position: absolute;
+  top: 22px;
+  right: 96px;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.lightbox-exif-hint::after {
+  content: "→";
+  margin-left: 0.35rem;
+  opacity: 0.7;
+}
+
+.lightbox.is-exif-open .lightbox-exif-hint {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .lightbox.is-exif-open .lightbox-exif {

@@ -90,6 +90,10 @@ const addExifOverlay = (figure, img, media) => {
   overlayText.textContent = exposureLabel;
   overlay.appendChild(overlayText);
 
+  const hint = document.createElement('span');
+  hint.className = 'exif-info-hint';
+  hint.textContent = "Click 'i' to toggle exposure data off";
+
   infoButton.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
@@ -103,6 +107,7 @@ const addExifOverlay = (figure, img, media) => {
   });
 
   media.appendChild(infoButton);
+  media.appendChild(hint);
   media.appendChild(overlay);
 };
 
@@ -685,7 +690,7 @@ if (albumLinks.length > 0) {
     .filter(Boolean);
 
   if (albums.length > 0) {
-    const displayDuration = 6400;
+    const displayDuration = 4096;
     const slideDuration = 600;
     let globalIndex = 0;
 
@@ -942,6 +947,7 @@ if (hasLightboxTargets) {
   lightbox.innerHTML = `
     <button class="lightbox-close" aria-label="Close">X</button>
     <button class="lightbox-info-toggle" aria-label="Show exposure details">i</button>
+    <div class="lightbox-exif-hint">Click 'i' to toggle exposure data off</div>
     <button class="lightbox-prev" aria-label="Previous">&lt;</button>
     <img src="" alt="Gallery image" />
     <div class="lightbox-caption" aria-live="polite"></div>
