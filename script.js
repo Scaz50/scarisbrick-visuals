@@ -1,3 +1,504 @@
+function initExifFilters(data) {
+  const gallery = document.querySelector('.gallery');
+  const portfolio = document.querySelector('#portfolio');
+  const portfolioGrid = portfolio ? portfolio.querySelector('.portfolio-sections') : null;
+  const grid = gallery ? gallery.querySelector('.grid') : null;
+  if ((gallery && !grid) || (!gallery && !portfolioGrid)) return;
+  const isPortfolio = Boolean(portfolioGrid && !gallery);
+
+  const normalizePath = value => {
+    if (!value) return '';
+    const normalized = decodeURIComponent(String(value)).replace(/\\/g, '/');
+    const imagesIndex = normalized.toLowerCase().lastIndexOf('/images/');
+    if (imagesIndex >= 0) {
+      return normalized.slice(imagesIndex + 1).toLowerCase();
+    }
+    return normalized.replace(/^\/+/, '').toLowerCase();
+  };
+
+  const exifByPath = new Map();
+  data.forEach(entry => {
+    if (!entry || !entry.SourceFile) return;
+    const key = normalizePath(entry.SourceFile);
+    if (key) {
+      exifByPath.set(key, entry);
+    }
+  });
+
+  const buildImageItem = img => {
+    const src = img.getAttribute('src') || '';
+    const key = normalizePath(src);
+    const exif = exifByPath.get(key) || null;
+    const target = img.closest('.gallery-item') || img;
+    return { target, exifEntries: exif ? [exif] : [] };
+  };
+
+  const buildAlbumItem = card => {
+    const link = card.querySelector('.album-link');
+    const img = card.querySelector('img');
+    const images = (link && link.dataset.images ? link.dataset.images : img ? img.getAttribute('src') : '')
+      .split('|')
+      .map(src => src.trim())
+      .filter(Boolean);
+    const exifEntries = images
+      .map(src => exifByPath.get(normalizePath(src)))
+      .filter(Boolean);
+    return { target: card, exifEntries };
+  };
+
+  const items = gallery
+    ? Array.from(grid.querySelectorAll('img')).map(buildImageItem)
+    : Array.from(portfolioGrid.querySelectorAll('.album-card')).map(buildAlbumItem);
+
+  const portfolioImages = isPortfolio
+    ? (() => {
+        const imageMap = new Map();
+        Array.from(portfolioGrid.querySelectorAll('.album-link')).forEach(link => {
+          const fallback = link.querySelector('img');
+          const images = (link.dataset.images || (fallback ? fallback.getAttribute('src') : ''))
+            .split('|')
+            .map(src => src.trim())
+            .filter(Boolean);
+          images.forEach(src => {
+            const key = normalizePath(src);
+            if (!key || imageMap.has(key)) return;
+            imageMap.set(key, { src, exif: exifByPath.get(key) || null });
+          });
+        });
+        return Array.from(imageMap.values());
+      })()
+    : [];
+
+  const cameraValues = new Set();
+  const lensValues = new Set();
+  items.forEach(({ exifEntries }) => {
+    exifEntries.forEach(exif => {
+      const camera = [exif.Make, exif.Model].filter(Boolean).join(' ');
+      if (camera) cameraValues.add(camera);
+      const lens = exif.LensModel || exif.LensID;
+      if (lens) lensValues.add(lens);
+    });
+  });
+
+  const filters = document.createElement('div');
+  filters.className = 'exif-filters';
+  filters.innerHTML = `
+    <div class="exif-filters-header">
+      <h3>Filter portfolio by Lens</h3>
+      <button type="button" class="exif-reset">Reset filters</button>
+    </div>
+    <div class="exif-filters-grid">
+      <label class="exif-lens-filter">
+        <div class="exif-lens-buttons" role="group" aria-label="Lens"></div>
+        <input type="hidden" name="lens" value="">
+      </label>
+    </div>
+  `;
+
+  const filterToggle = document.createElement('button');
+  filterToggle.type = 'button';
+  filterToggle.className = 'exif-filters-toggle';
+  const setFilterToggleLabel = () => {
+    const isVisible = document.body.classList.contains('show-exif-filters');
+    filterToggle.textContent = isVisible ? 'Hide lens filters' : 'Show lens filters';
+  };
+  setFilterToggleLabel();
+  filterToggle.addEventListener('click', () => {
+    document.body.classList.toggle('show-exif-filters');
+    setFilterToggleLabel();
+  });
+
+  const heading = gallery ? gallery.querySelector('h2') : portfolio.querySelector('h2');
+  if (heading) {
+    heading.insertAdjacentElement('afterend', filterToggle);
+    filterToggle.insertAdjacentElement('afterend', filters);
+  } else {
+    (gallery || portfolio).prepend(filters);
+    filters.insertAdjacentElement('beforebegin', filterToggle);
+  }
+
+  const summary = document.createElement('p');
+  summary.className = 'exif-summary';
+  summary.innerHTML = `Showing <span class="exif-visible-count">${items.length}</span> of ${items.length}`;
+  const summaryTarget = gallery ? grid : portfolioGrid;
+  summaryTarget.insertAdjacentElement('beforebegin', summary);
+
+  let matches = null;
+  let matchesGrid = null;
+  let matchesEmpty = null;
+  if (isPortfolio) {
+    matches = document.createElement('div');
+    matches.className = 'exif-matches';
+    matches.innerHTML = `
+      <p class="exif-matches-empty">Select filters to preview matching images.</p>
+      <div class="exif-matches-grid"></div>
+    `;
+    summary.insertAdjacentElement('afterend', matches);
+    matchesGrid = matches.querySelector('.exif-matches-grid');
+    matchesEmpty = matches.querySelector('.exif-matches-empty');
+  }
+
+  const lensGroups = new Map([
+    ['Mavic2Pro 28mm', ['28.0 mm f/2.8', '28.0 mm f/2.8-11.0']]
+  ]);
+  const lensLabels = new Map([
+    ['NIKKOR Z 14-24mm f/2.8 S', 'Z 14-24mm f/2.8 S'],
+    ['NIKKOR Z 24-70mm f/2.8 S', 'Z 24-70mm f/2.8 S'],
+    ['NIKKOR Z 70-200mm f/2.8 VR S', 'Z 70-200mm f/2.8 VR S'],
+    ['NIKKOR Z 85mm f/1.8 S', 'Z 85mm f/1.8 S'],
+    ['NIKKOR Z 100-400mm f/4.5-5.6 VR S', 'Z 100-400mm f/4.5-5.6 VR S'],
+    ['NIKKOR Z 180-600mm f/5.6-6.3 VR', 'Z 180-600mm f/5.6-6.3 VR']
+  ]);
+  const lensOrder = [
+    'NIKKOR Z 14-24mm f/2.8 S',
+    'NIKKOR Z 24-70mm f/2.8 S',
+    'NIKKOR Z 70-200mm f/2.8 VR S',
+    'NIKKOR Z 85mm f/1.8 S',
+    'NIKKOR Z 100-400mm f/4.5-5.6 VR S',
+    'NIKKOR Z 180-600mm f/5.6-6.3 VR'
+  ];
+  const lensButtons = filters.querySelector('.exif-lens-buttons');
+  const lensInput = filters.querySelector('[name="lens"]');
+  const groupedLensValues = new Set(Array.from(lensGroups.values()).flat());
+  const lensesToRender = [
+    ...Array.from(lensGroups.keys()).filter(label => lensGroups.get(label).some(value => lensValues.has(value))),
+    ...lensOrder.filter(value => lensValues.has(value)),
+    ...Array.from(lensValues)
+      .filter(value => !groupedLensValues.has(value) && !lensOrder.includes(value))
+      .sort()
+  ];
+
+  lensesToRender.forEach(value => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'exif-lens-button';
+    button.dataset.value = value;
+    button.textContent = lensLabels.get(value) || value;
+    button.setAttribute('aria-pressed', 'false');
+    lensButtons.appendChild(button);
+  });
+
+  const inputs = Array.from(filters.querySelectorAll('input, select'));
+  const toNumber = value => {
+    const parsed = parseFloat(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  };
+
+  const isFilterActive = values =>
+    Object.values(values).some(value => value !== null && value !== '');
+
+  const applyFilters = () => {
+    const values = {
+      lens: lensInput ? lensInput.value : ''
+    };
+
+    const active = isFilterActive(values);
+    let visible = 0;
+
+    const matchesExif = exif => {
+      const lens = exif.LensModel || exif.LensID || '';
+
+      if (values.lens) {
+        const group = lensGroups.get(values.lens);
+        if (group) {
+          if (!group.includes(lens)) return false;
+        } else if (lens !== values.lens) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    let matchImages = [];
+    if (isPortfolio && active) {
+      matchImages = portfolioImages.filter(item => item.exif && matchesExif(item.exif));
+    }
+
+    const hidePortfolioTiles = isPortfolio && active;
+    items.forEach(({ target, exifEntries }) => {
+      let match = true;
+      if (active) {
+        match = exifEntries.length > 0 && exifEntries.some(matchesExif);
+      }
+
+      if (hidePortfolioTiles) {
+        target.style.display = 'none';
+      } else {
+        target.style.display = match ? '' : 'none';
+        if (match) visible += 1;
+      }
+    });
+
+    if (isPortfolio && matches && matchesGrid && matchesEmpty) {
+      matchesGrid.textContent = '';
+      if (!active) {
+        matchesEmpty.textContent = 'Select filters to preview matching images.';
+        matchesEmpty.style.display = '';
+        matchesGrid.style.display = 'none';
+      } else if (matchImages.length === 0) {
+        matchesEmpty.textContent = 'No images match these filters.';
+        matchesEmpty.style.display = '';
+        matchesGrid.style.display = 'none';
+      } else {
+        matchesEmpty.style.display = 'none';
+        matchesGrid.style.display = 'grid';
+        matchImages.forEach(({ src }) => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = 'Filtered image';
+          const captionsByKey = window.galleryCaptionsByKey || {};
+          const captionKey = normalizePath(src);
+          if (captionsByKey[captionKey]) {
+            img.dataset.caption = captionsByKey[captionKey];
+          }
+          matchesGrid.appendChild(img);
+        });
+      }
+
+      const shownImages = active ? matchImages.length : portfolioImages.length;
+      summary.innerHTML = `Showing <span class="exif-visible-count">${shownImages}</span> of ${portfolioImages.length} images`;
+    } else {
+      summary.innerHTML = `Showing <span class="exif-visible-count">${visible}</span> of ${items.length}`;
+    }
+  };
+
+  inputs.forEach(input => {
+    input.addEventListener('input', applyFilters);
+    input.addEventListener('change', applyFilters);
+  });
+
+  const setActiveLens = value => {
+    if (!lensInput || !lensButtons) return;
+    lensInput.value = value || '';
+    Array.from(lensButtons.querySelectorAll('button')).forEach(button => {
+      const isActive = button.dataset.value === lensInput.value;
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+  };
+
+  if (lensButtons) {
+    lensButtons.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button || !lensButtons.contains(button)) return;
+      const nextValue = button.dataset.value;
+      const shouldClear = lensInput && lensInput.value === nextValue;
+      setActiveLens(shouldClear ? '' : nextValue);
+      applyFilters();
+    });
+  }
+
+  filters.querySelector('.exif-reset').addEventListener('click', () => {
+    inputs.forEach(input => {
+      if (input.tagName === 'SELECT') {
+        input.value = '';
+      } else {
+        input.value = '';
+      }
+    });
+    setActiveLens('');
+    applyFilters();
+  });
+
+  setActiveLens('');
+  applyFilters();
+};
+
+// Load EXIF data for future filtering.
+fetch('data/exif.json')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Failed to load EXIF data: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    window.exifData = data;
+    initExifFilters(data);
+  })
+  .catch(error => {
+    console.warn(error.message);
+  });
+
+const initGalleryCaptions = async () => {
+  const gallery = document.querySelector('.gallery');
+  const grid = gallery ? gallery.querySelector('.grid') : null;
+  if (!gallery || !grid) return;
+
+  const pageName = window.location.pathname.split('/').pop() || 'gallery';
+  const pageKey = pageName.replace(/[^a-z0-9_-]+/gi, '-').toLowerCase();
+  const storageKey = `galleryCaptions:${pageKey}`;
+  const normalizeSrc = value => {
+    if (!value) return '';
+    const normalized = decodeURIComponent(String(value)).replace(/\\/g, '/');
+    const imagesIndex = normalized.toLowerCase().lastIndexOf('/images/');
+    if (imagesIndex >= 0) {
+      return normalized.slice(imagesIndex + 1).toLowerCase();
+    }
+    return normalized.replace(/^\/+/, '').toLowerCase();
+  };
+
+  let sharedCaptions = {};
+  try {
+    const response = await fetch('data/captions.json', { cache: 'no-store' });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && typeof data === 'object') {
+        if (data[pageName] && typeof data[pageName] === 'object') {
+          sharedCaptions = data[pageName];
+        } else {
+          sharedCaptions = data;
+        }
+      }
+    }
+  } catch (error) {
+    sharedCaptions = {};
+  }
+
+  let localCaptions = {};
+  try {
+    localCaptions = JSON.parse(localStorage.getItem(storageKey)) || {};
+  } catch (error) {
+    localCaptions = {};
+  }
+  let captions = { ...sharedCaptions, ...localCaptions };
+  window.galleryCaptionsByKey = captions;
+
+  const toolbar = document.createElement('div');
+  toolbar.className = 'caption-editor';
+  toolbar.innerHTML = `
+    <div class="caption-editor-info">
+      <strong>Captions</strong>
+      <span class="caption-status">Shared captions loaded. Edits save locally.</span>
+    </div>
+    <div class="caption-editor-actions">
+      <button type="button" class="caption-toggle">Edit captions</button>
+      <button type="button" class="caption-export">Download captions</button>
+      <button type="button" class="caption-clear">Clear local edits</button>
+    </div>
+  `;
+  const editorToggle = document.createElement('button');
+  editorToggle.type = 'button';
+  editorToggle.className = 'caption-editor-toggle';
+  const setEditorToggleLabel = () => {
+    const isVisible = document.body.classList.contains('show-caption-editor');
+    editorToggle.textContent = isVisible ? 'Hide caption tools' : 'Show caption tools';
+  };
+  setEditorToggleLabel();
+  editorToggle.addEventListener('click', () => {
+    document.body.classList.toggle('show-caption-editor');
+    setEditorToggleLabel();
+  });
+  grid.insertAdjacentElement('beforebegin', editorToggle);
+  editorToggle.insertAdjacentElement('afterend', toolbar);
+
+  const captionEntries = [];
+  const updateEmptyState = caption => {
+    const empty = !caption.textContent.trim();
+    caption.classList.toggle('is-empty', empty);
+  };
+
+  const images = Array.from(grid.querySelectorAll('img'));
+  images.forEach(img => {
+    const existingFigure = img.closest('figure.gallery-item');
+    if (existingFigure) return;
+
+    const figure = document.createElement('figure');
+    figure.className = 'gallery-item';
+    const key = normalizeSrc(img.getAttribute('src'));
+    figure.dataset.captionKey = key;
+
+    const caption = document.createElement('figcaption');
+    caption.className = 'gallery-caption';
+    caption.textContent = captions[key] || '';
+    updateEmptyState(caption);
+    img.dataset.caption = caption.textContent;
+
+    img.parentNode.insertBefore(figure, img);
+    figure.appendChild(img);
+    figure.appendChild(caption);
+    captionEntries.push({ caption, key, img });
+  });
+
+  const saveCaptions = () => {
+    localStorage.setItem(storageKey, JSON.stringify(localCaptions));
+  };
+
+  let isEditing = false;
+  const toggleButton = toolbar.querySelector('.caption-toggle');
+  const exportButton = toolbar.querySelector('.caption-export');
+  const clearButton = toolbar.querySelector('.caption-clear');
+  const status = toolbar.querySelector('.caption-status');
+
+  const updateEditingState = nextState => {
+    isEditing = nextState;
+    gallery.classList.toggle('caption-editing', isEditing);
+    toggleButton.textContent = isEditing ? 'Done editing' : 'Edit captions';
+    captionEntries.forEach(({ caption }) => {
+      caption.setAttribute('contenteditable', isEditing ? 'true' : 'false');
+      caption.setAttribute('role', 'textbox');
+      caption.setAttribute('aria-label', 'Caption');
+      updateEmptyState(caption);
+    });
+  };
+
+  captionEntries.forEach(({ caption, key, img }) => {
+    caption.addEventListener('input', () => {
+      const value = caption.textContent.trim();
+      if (value) {
+        localCaptions[key] = value;
+      } else {
+        delete localCaptions[key];
+      }
+      captions = { ...sharedCaptions, ...localCaptions };
+      window.galleryCaptionsByKey = captions;
+      if (img) {
+        img.dataset.caption = value;
+      }
+      updateEmptyState(caption);
+      saveCaptions();
+      status.textContent = 'Saved locally. Download to publish.';
+    });
+  });
+
+  toggleButton.addEventListener('click', () => {
+    updateEditingState(!isEditing);
+  });
+
+  exportButton.addEventListener('click', () => {
+    const data = JSON.stringify(captions, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `captions-${pageKey}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  clearButton.addEventListener('click', () => {
+    if (!window.confirm('Clear local caption edits for this gallery?')) return;
+    localCaptions = {};
+    captions = { ...sharedCaptions };
+    window.galleryCaptionsByKey = captions;
+    captionEntries.forEach(({ caption, img }) => {
+      caption.textContent = '';
+      updateEmptyState(caption);
+      if (img) {
+        img.dataset.caption = '';
+      }
+    });
+    saveCaptions();
+    status.textContent = 'Local edits cleared.';
+  });
+
+  updateEditingState(false);
+};
+
+initGalleryCaptions();
+
 // Album preview rotator (home page)
 const albumLinks = Array.from(document.querySelectorAll('.album-link'));
 if (albumLinks.length > 0) {
@@ -210,8 +711,8 @@ if (revealCards.length > 0 && window.matchMedia('(max-width: 900px)').matches) {
 }
 
 // Gallery lightbox
-const galleryImages = Array.from(document.querySelectorAll('.grid img'));
-if (galleryImages.length > 0) {
+const hasLightboxTargets = Boolean(document.querySelector('.grid') || document.querySelector('.album-card'));
+if (hasLightboxTargets) {
   const lightbox = document.createElement('div');
   lightbox.className = 'lightbox';
   lightbox.setAttribute('aria-hidden', 'true');
@@ -219,23 +720,66 @@ if (galleryImages.length > 0) {
     <button class="lightbox-close" aria-label="Close">X</button>
     <button class="lightbox-prev" aria-label="Previous">&lt;</button>
     <img src="" alt="Gallery image" />
+    <div class="lightbox-caption" aria-live="polite"></div>
     <button class="lightbox-next" aria-label="Next">&gt;</button>
   `;
   document.body.appendChild(lightbox);
 
   const lightboxImg = lightbox.querySelector('img');
+  const lightboxCaption = lightbox.querySelector('.lightbox-caption');
   const closeBtn = lightbox.querySelector('.lightbox-close');
   const prevBtn = lightbox.querySelector('.lightbox-prev');
   const nextBtn = lightbox.querySelector('.lightbox-next');
   let currentIndex = 0;
+  let galleryImages = [];
 
-  function openLightbox(index) {
+  const getLightboxImages = () =>
+    Array.from(document.querySelectorAll('.grid img, .exif-matches-grid img'));
+
+  const normalizeCaptionKey = value => {
+    if (!value) return '';
+    const normalized = decodeURIComponent(String(value)).replace(/\\/g, '/');
+    const imagesIndex = normalized.toLowerCase().lastIndexOf('/images/');
+    if (imagesIndex >= 0) {
+      return normalized.slice(imagesIndex + 1).toLowerCase();
+    }
+    return normalized.replace(/^\/+/, '').toLowerCase();
+  };
+
+  const getCaptionForImage = target => {
+    if (!target) return '';
+    const datasetCaption = target.getAttribute('data-caption') || '';
+    if (datasetCaption.trim()) return datasetCaption.trim();
+    const figure = target.closest('figure');
+    if (figure) {
+      const figcaption = figure.querySelector('.gallery-caption');
+      if (figcaption && figcaption.textContent.trim()) {
+        return figcaption.textContent.trim();
+      }
+    }
+    const captionsByKey = window.galleryCaptionsByKey || {};
+    const fullSrc = target.getAttribute('data-full') || target.getAttribute('src');
+    const key = normalizeCaptionKey(fullSrc);
+    return captionsByKey[key] || '';
+  };
+
+  const setLightboxCaption = target => {
+    if (!lightboxCaption) return;
+    const caption = getCaptionForImage(target);
+    lightboxCaption.textContent = caption;
+    lightboxCaption.classList.toggle('is-empty', !caption);
+  };
+
+  function openLightbox(index, images) {
+    galleryImages = images || getLightboxImages();
+    if (galleryImages.length === 0) return;
     currentIndex = index;
     const target = galleryImages[currentIndex];
     const fullSrc = target.getAttribute('data-full') || target.getAttribute('src');
     const alt = target.getAttribute('alt') || 'Gallery image';
     lightboxImg.setAttribute('src', fullSrc);
     lightboxImg.setAttribute('alt', alt);
+    setLightboxCaption(target);
     lightbox.classList.add('is-open');
     lightbox.setAttribute('aria-hidden', 'false');
     document.body.classList.add('no-scroll');
@@ -248,16 +792,23 @@ if (galleryImages.length > 0) {
   }
 
   function stepLightbox(delta) {
+    if (galleryImages.length === 0) return;
     currentIndex = (currentIndex + delta + galleryImages.length) % galleryImages.length;
     const target = galleryImages[currentIndex];
     const fullSrc = target.getAttribute('data-full') || target.getAttribute('src');
     const alt = target.getAttribute('alt') || 'Gallery image';
     lightboxImg.setAttribute('src', fullSrc);
     lightboxImg.setAttribute('alt', alt);
+    setLightboxCaption(target);
   }
 
-  galleryImages.forEach((img, index) => {
-    img.addEventListener('click', () => openLightbox(index));
+  document.addEventListener('click', event => {
+    const target = event.target.closest('.grid img, .exif-matches-grid img');
+    if (!target) return;
+    const images = getLightboxImages();
+    const index = images.indexOf(target);
+    if (index === -1) return;
+    openLightbox(index, images);
   });
 
   closeBtn.addEventListener('click', closeLightbox);

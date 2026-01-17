@@ -890,12 +890,273 @@ footer {
   margin-bottom: 0.75rem;
 }
 
+.caption-editor {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(30, 31, 36, 0.08);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+body:not(.show-caption-editor) .caption-editor {
+  display: none;
+}
+
+body:not(.show-caption-editor) .caption-editor-toggle {
+  display: none;
+}
+
+.caption-editor-toggle {
+  border: 1px solid rgba(30, 31, 36, 0.2);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.caption-editor-toggle:hover,
+.caption-editor-toggle:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.caption-editor-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--slate);
+  font-weight: 600;
+}
+
+.caption-editor-info strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.caption-editor-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.caption-editor button {
+  border: 1px solid rgba(30, 31, 36, 0.2);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.caption-editor button:hover,
+.caption-editor button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.exif-filters {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(30, 31, 36, 0.08);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+body:not(.show-exif-filters) .exif-filters {
+  display: none;
+}
+
+.exif-filters-toggle {
+  border: 1px solid rgba(30, 31, 36, 0.2);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: block;
+  width: fit-content;
+  margin-bottom: 1rem;
+  margin-top: 0.75rem;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.exif-filters-toggle:hover,
+.exif-filters-toggle:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.exif-filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.exif-filters-header h3 {
+  font-family: var(--heading-font);
+  font-size: 1.2rem;
+}
+
+.exif-reset {
+  border: 1px solid rgba(30, 31, 36, 0.2);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.exif-reset:hover,
+.exif-reset:focus {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.exif-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.9rem 1.2rem;
+}
+
+.exif-filters-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: var(--slate);
+}
+
+.exif-filters-grid input,
+.exif-filters-grid select {
+  padding: 0.5rem 0.6rem;
+  border-radius: 10px;
+  border: 1px solid rgba(30, 31, 36, 0.2);
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.exif-filters-grid input:focus,
+.exif-filters-grid select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(43, 138, 126, 0.15);
+}
+
+.exif-lens-filter {
+  gap: 0.5rem;
+}
+
+.exif-lens-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.exif-lens-button {
+  border: 1px solid rgba(30, 31, 36, 0.2);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.exif-lens-button:hover,
+.exif-lens-button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.exif-lens-button.is-active {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(43, 138, 126, 0.3);
+}
+
+.exif-summary {
+  margin: 0 0 1rem;
+  color: var(--slate);
+  font-weight: 600;
+}
+
+body:not(.show-exif-filters) .exif-summary,
+body:not(.show-exif-filters) .exif-matches {
+  display: none;
+}
+
+.exif-matches {
+  margin: 0 0 2rem;
+}
+
+.exif-matches-empty {
+  color: var(--slate);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.exif-matches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.exif-matches-grid img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 16px 34px rgba(20, 20, 20, 0.12);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.exif-matches-grid img:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(20, 20, 20, 0.16);
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 1rem;
   position: relative;
   z-index: 0;
+}
+
+.grid .gallery-item {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .grid img {
@@ -905,6 +1166,45 @@ footer {
   width: 100%;
   height: auto;
   border-radius: var(--radius-lg);
+}
+
+.gallery-caption {
+  margin-top: 0.6rem;
+  color: var(--slate);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  min-height: 1.3em;
+}
+
+.gallery .gallery-caption {
+  display: none;
+}
+
+.gallery.caption-editing .gallery-caption {
+  display: block;
+}
+
+.gallery-caption.is-empty {
+  display: none;
+}
+
+.caption-editing .gallery-caption {
+  display: block;
+  background: #ffffff;
+  border: 1px dashed rgba(30, 31, 36, 0.2);
+  border-radius: 12px;
+  padding: 0.45rem 0.7rem;
+}
+
+.caption-editing .gallery-caption:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(43, 138, 126, 0.15);
+}
+
+.caption-editing .gallery-caption:empty::before {
+  content: "Add caption...";
+  color: #9da7b3;
 }
 
 
@@ -945,6 +1245,35 @@ body.lightbox-open .site-nav {
   object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.lightbox-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  max-width: min(80vw, 720px);
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.95rem;
+  text-align: center;
+  line-height: 1.4;
+  opacity: 0.35;
+  transition: opacity 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.lightbox:hover .lightbox-caption,
+.lightbox:focus-within .lightbox-caption,
+.lightbox-caption:hover {
+  opacity: 1;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.lightbox-caption.is-empty {
+  display: none;
 }
 
 .lightbox button {
