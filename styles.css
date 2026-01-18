@@ -1176,6 +1176,16 @@ body:not(.show-exif-filters) .exif-matches {
   z-index: 0;
 }
 
+@media (max-width: 700px) {
+  .gallery {
+    padding: 1.25rem 1rem 2rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .grid .gallery-item {
   margin: 0;
   display: flex;
