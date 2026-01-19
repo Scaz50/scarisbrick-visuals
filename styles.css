@@ -1225,6 +1225,27 @@ body.show-exif-filters .lens-note {
   gap: 0.4rem;
 }
 
+@media (max-width: 700px) {
+  .exif-lens-groups {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    justify-items: stretch;
+  }
+
+  .exif-lens-group h4 {
+    text-align: left;
+  }
+
+  .exif-lens-buttons {
+    align-items: stretch;
+  }
+
+  .exif-lens-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .exif-lens-button {
   border: 1px solid rgba(30, 31, 36, 0.2);
   background: #ffffff;
