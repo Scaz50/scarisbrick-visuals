@@ -369,7 +369,7 @@ nav a {
 
 .portfolio-panel h3 {
   font-family: var(--heading-font);
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
 .portfolio-close {
@@ -1100,6 +1100,29 @@ body.show-exif-filters .lens-note {
   border-bottom: 5px solid transparent;
   border-right: 8px solid currentColor;
   transform: translateY(-50%) rotate(-10deg);
+}
+
+@media (max-width: 600px) {
+  .exif-toggle-row {
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+  }
+
+  .lens-note {
+    font-size: 1.2rem;
+    padding-left: 1.8rem;
+  }
+
+  .lens-note::before {
+    left: 0.5rem;
+    width: 1rem;
+  }
+
+  .lens-note::after {
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+    border-right-width: 6px;
+  }
 }
 
 .exif-filters-toggle:hover,
