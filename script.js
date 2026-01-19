@@ -216,16 +216,16 @@ function initExifFilters(data) {
     });
   });
 
-  const filters = document.createElement('div');
-  filters.className = 'exif-filters';
-  filters.innerHTML = `
+    const filters = document.createElement('div');
+    filters.className = 'exif-filters';
+    filters.innerHTML = `
     <div class="exif-filters-header">
       <h3>Filter portfolio by Lens</h3>
       <button type="button" class="exif-reset">Reset filters</button>
     </div>
     <div class="exif-filters-grid">
       <label class="exif-lens-filter">
-        <div class="exif-lens-buttons" role="group" aria-label="Lens"></div>
+        <div class="exif-lens-groups" role="group" aria-label="Lens"></div>
         <input type="hidden" name="lens" value="">
       </label>
     </div>
@@ -246,11 +246,25 @@ function initExifFilters(data) {
 
   const heading = gallery ? gallery.querySelector('h2') : portfolio.querySelector('h2');
   if (heading) {
-    heading.insertAdjacentElement('afterend', filterToggle);
-    filterToggle.insertAdjacentElement('afterend', filters);
+    const lensToggleRow = document.createElement('div');
+    lensToggleRow.className = 'exif-toggle-row';
+    const lensNote = document.createElement('div');
+    lensNote.className = 'lens-note';
+    lensNote.textContent = 'Photography nerds only';
+    lensToggleRow.appendChild(filterToggle);
+    lensToggleRow.appendChild(lensNote);
+    heading.insertAdjacentElement('afterend', lensToggleRow);
+    lensToggleRow.insertAdjacentElement('afterend', filters);
   } else {
     (gallery || portfolio).prepend(filters);
-    filters.insertAdjacentElement('beforebegin', filterToggle);
+    const lensToggleRow = document.createElement('div');
+    lensToggleRow.className = 'exif-toggle-row';
+    const lensNote = document.createElement('div');
+    lensNote.className = 'lens-note';
+    lensNote.textContent = 'Photography nerds only';
+    lensToggleRow.appendChild(filterToggle);
+    lensToggleRow.appendChild(lensNote);
+    filters.insertAdjacentElement('beforebegin', lensToggleRow);
   }
 
   const summary = document.createElement('p');
@@ -277,14 +291,25 @@ function initExifFilters(data) {
   const lensGroups = new Map([
     ['Mavic2Pro 28mm', ['28.0 mm f/2.8', '28.0 mm f/2.8-11.0']]
   ]);
-  const lensLabels = new Map([
-    ['NIKKOR Z 14-24mm f/2.8 S', 'Z 14-24mm f/2.8 S'],
-    ['NIKKOR Z 24-70mm f/2.8 S', 'Z 24-70mm f/2.8 S'],
-    ['NIKKOR Z 70-200mm f/2.8 VR S', 'Z 70-200mm f/2.8 VR S'],
-    ['NIKKOR Z 85mm f/1.8 S', 'Z 85mm f/1.8 S'],
-    ['NIKKOR Z 100-400mm f/4.5-5.6 VR S', 'Z 100-400mm f/4.5-5.6 VR S'],
-    ['NIKKOR Z 180-600mm f/5.6-6.3 VR', 'Z 180-600mm f/5.6-6.3 VR']
-  ]);
+    const lensLabels = new Map([
+      ['NIKKOR Z 14-24mm f/2.8 S', 'Z 14-24mm f/2.8 S'],
+      ['NIKKOR Z 24-70mm f/2.8 S', 'Z 24-70mm f/2.8 S'],
+      ['NIKKOR Z 70-200mm f/2.8 VR S', 'Z 70-200mm f/2.8 VR S'],
+      ['NIKKOR Z 85mm f/1.8 S', 'Z 85mm f/1.8 S'],
+      ['NIKKOR Z 100-400mm f/4.5-5.6 VR S', 'Z 100-400mm f/4.5-5.6 VR S'],
+      ['NIKKOR Z 180-600mm f/5.6-6.3 VR', 'Z 180-600mm f/5.6-6.3 VR']
+    ]);
+    const lensCategories = [
+      { title: 'Drone', items: ['Mavic2Pro 28mm'] },
+      { title: 'Wide Angle Zoom', items: ['NIKKOR Z 14-24mm f/2.8 S'] },
+      { title: 'Standard Zoom', items: ['NIKKOR Z 24-70mm f/2.8 S'] },
+      {
+        title: 'Telephoto Zoom',
+        items: ['NIKKOR Z 70-200mm f/2.8 VR S', 'NIKKOR Z 100-400mm f/4.5-5.6 VR S']
+      },
+      { title: 'Super TelePhoto Zoom', items: ['NIKKOR Z 180-600mm f/5.6-6.3 VR'] },
+      { title: 'Prime', items: ['NIKKOR Z 85mm f/1.8 S'] }
+    ];
   const lensOrder = [
     'NIKKOR Z 14-24mm f/2.8 S',
     'NIKKOR Z 24-70mm f/2.8 S',
@@ -293,31 +318,68 @@ function initExifFilters(data) {
     'NIKKOR Z 100-400mm f/4.5-5.6 VR S',
     'NIKKOR Z 180-600mm f/5.6-6.3 VR'
   ];
-  const lensButtons = filters.querySelector('.exif-lens-buttons');
-  const lensInput = filters.querySelector('[name="lens"]');
-  const groupedLensValues = new Set(Array.from(lensGroups.values()).flat());
-  const lensesToRender = [
-    ...Array.from(lensGroups.keys()).filter(label => lensGroups.get(label).some(value => lensValues.has(value))),
-    ...lensOrder.filter(value => lensValues.has(value)),
-    ...Array.from(lensValues)
-      .filter(value => !groupedLensValues.has(value) && !lensOrder.includes(value))
-      .sort()
-  ];
+    const lensButtons = filters.querySelector('.exif-lens-groups');
+    const lensInput = filters.querySelector('[name="lens"]');
+    const groupedLensValues = new Set(Array.from(lensGroups.values()).flat());
+    const lensesToRender = [
+      ...Array.from(lensGroups.keys()).filter(label => lensGroups.get(label).some(value => lensValues.has(value))),
+      ...lensOrder.filter(value => lensValues.has(value)),
+      ...Array.from(lensValues)
+        .filter(value => !groupedLensValues.has(value) && !lensOrder.includes(value))
+        .sort()
+    ];
 
-  lensesToRender.forEach(value => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'exif-lens-button';
-    button.dataset.value = value;
-    button.textContent = lensLabels.get(value) || value;
-    button.setAttribute('aria-pressed', 'false');
-    lensButtons.appendChild(button);
-  });
+    const buildLensButton = value => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'exif-lens-button';
+      button.dataset.value = value;
+      button.textContent = lensLabels.get(value) || value;
+      button.setAttribute('aria-pressed', 'false');
+      return button;
+    };
+
+    const renderLensGroup = (title, items) => {
+      const filtered = items.filter(item => lensesToRender.includes(item));
+      if (filtered.length === 0) return;
+      const group = document.createElement('div');
+      group.className = 'exif-lens-group';
+      const heading = document.createElement('h4');
+      heading.textContent = title;
+      group.appendChild(heading);
+      const buttons = document.createElement('div');
+      buttons.className = 'exif-lens-buttons';
+      filtered.forEach(item => buttons.appendChild(buildLensButton(item)));
+      group.appendChild(buttons);
+      lensButtons.appendChild(group);
+      return filtered;
+    };
+
+    const usedLabels = new Set();
+    lensCategories.forEach(category => {
+      const added = renderLensGroup(category.title, category.items) || [];
+      added.forEach(item => usedLabels.add(item));
+    });
+    const extras = lensesToRender.filter(item => !usedLabels.has(item));
+    if (extras.length > 0) {
+      renderLensGroup('Other', extras);
+    }
 
   const inputs = Array.from(filters.querySelectorAll('input, select'));
   const toNumber = value => {
     const parsed = parseFloat(value);
     return Number.isNaN(parsed) ? null : parsed;
+  };
+  const dedupeImagesByFilename = items => {
+    const seen = new Set();
+    return items.filter(item => {
+      const src = item && item.src ? item.src : '';
+      if (!src) return false;
+      const name = decodeURIComponent(src).split('/').pop().toLowerCase();
+      if (!name || seen.has(name)) return false;
+      seen.add(name);
+      return true;
+    });
   };
 
   const isFilterActive = values =>
@@ -330,6 +392,9 @@ function initExifFilters(data) {
 
     const active = isFilterActive(values);
     let visible = 0;
+    if (!isPortfolio && grid) {
+      grid.classList.toggle('is-filtered', active);
+    }
 
     const matchesExif = exif => {
       const lens = exif.LensModel || exif.LensID || '';
@@ -347,7 +412,9 @@ function initExifFilters(data) {
 
     let matchImages = [];
     if (isPortfolio && active) {
-      matchImages = portfolioImages.filter(item => item.exif && matchesExif(item.exif));
+      matchImages = dedupeImagesByFilename(
+        portfolioImages.filter(item => item.exif && matchesExif(item.exif))
+      );
     }
 
     const hidePortfolioTiles = isPortfolio && active;
@@ -382,6 +449,8 @@ function initExifFilters(data) {
           const img = document.createElement('img');
           img.src = src;
           img.alt = 'Filtered image';
+          img.loading = 'lazy';
+          img.decoding = 'async';
           const captionsByKey = window.galleryCaptionsByKey || allCaptionsByKey;
           const captionKey = normalizePath(src);
           if (captionsByKey[captionKey]) {
@@ -413,26 +482,26 @@ function initExifFilters(data) {
     })
     .catch(() => {});
 
-  const setActiveLens = value => {
-    if (!lensInput || !lensButtons) return;
-    lensInput.value = value || '';
-    Array.from(lensButtons.querySelectorAll('button')).forEach(button => {
-      const isActive = button.dataset.value === lensInput.value;
-      button.classList.toggle('is-active', isActive);
-      button.setAttribute('aria-pressed', String(isActive));
-    });
-  };
+    const setActiveLens = value => {
+      if (!lensInput || !lensButtons) return;
+      lensInput.value = value || '';
+      Array.from(lensButtons.querySelectorAll('button')).forEach(button => {
+        const isActive = button.dataset.value === lensInput.value;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+      });
+    };
 
-  if (lensButtons) {
-    lensButtons.addEventListener('click', event => {
-      const button = event.target.closest('button');
-      if (!button || !lensButtons.contains(button)) return;
-      const nextValue = button.dataset.value;
-      const shouldClear = lensInput && lensInput.value === nextValue;
-      setActiveLens(shouldClear ? '' : nextValue);
-      applyFilters();
-    });
-  }
+    if (lensButtons) {
+      lensButtons.addEventListener('click', event => {
+        const button = event.target.closest('button');
+        if (!button || !lensButtons.contains(button)) return;
+        const nextValue = button.dataset.value;
+        const shouldClear = lensInput && lensInput.value === nextValue;
+        setActiveLens(shouldClear ? '' : nextValue);
+        applyFilters();
+      });
+    }
 
   filters.querySelector('.exif-reset').addEventListener('click', () => {
     inputs.forEach(input => {
@@ -476,7 +545,12 @@ const initGalleryCaptions = async () => {
   const pageName = window.location.pathname.split('/').pop() || 'gallery';
   const pageKey = pageName.replace(/[^a-z0-9_-]+/gi, '-').toLowerCase();
   const storageKey = `galleryCaptions:${pageKey}`;
+  const tagsStorageKey = `galleryTags:${pageKey}`;
   const normalizeSrc = normalizeImagePath;
+  const galleryHeading = gallery ? gallery.querySelector('h2') : null;
+  const defaultTag = galleryHeading
+    ? galleryHeading.textContent.replace(/\s+Gallery\s*$/i, '').trim()
+    : '';
 
   let sharedCaptions = {};
   try {
@@ -487,7 +561,16 @@ const initGalleryCaptions = async () => {
         if (data[pageName] && typeof data[pageName] === 'object') {
           sharedCaptions = data[pageName];
         } else {
-          sharedCaptions = data;
+          const flattened = {};
+          Object.keys(data).forEach(key => {
+            const entry = data[key];
+            if (entry && typeof entry === 'object') {
+              Object.keys(entry).forEach(pathKey => {
+                flattened[pathKey] = entry[pathKey];
+              });
+            }
+          });
+          sharedCaptions = Object.keys(flattened).length > 0 ? flattened : data;
         }
       }
     }
@@ -501,8 +584,49 @@ const initGalleryCaptions = async () => {
   } catch (error) {
     localCaptions = {};
   }
-  let captions = { ...sharedCaptions, ...localCaptions };
+  const normalizeCaptions = source => {
+    const next = {};
+    Object.keys(source || {}).forEach(key => {
+      const normalizedKey = normalizeSrc(key);
+      if (!normalizedKey) return;
+      next[normalizedKey] = source[key];
+    });
+    return next;
+  };
+
+  let captions = {
+    ...normalizeCaptions(sharedCaptions),
+    ...normalizeCaptions(localCaptions)
+  };
   window.galleryCaptionsByKey = captions;
+
+  let localTags = {};
+  try {
+    localTags = JSON.parse(localStorage.getItem(tagsStorageKey)) || {};
+  } catch (error) {
+    localTags = {};
+  }
+  let tags = { ...localTags };
+  window.galleryTagsByKey = tags;
+  let allTagsByKey = {};
+  try {
+    const response = await fetch('data/images.json', { cache: 'no-store' });
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const next = {};
+        data.forEach(item => {
+          const src = item && item.src ? item.src : '';
+          const key = normalizeSrc(src);
+          if (!key || !Array.isArray(item.tags)) return;
+          next[key] = item.tags.filter(Boolean);
+        });
+        allTagsByKey = next;
+      }
+    }
+  } catch (error) {
+    allTagsByKey = {};
+  }
 
   const toolbar = document.createElement('div');
   toolbar.className = 'caption-editor';
@@ -510,34 +634,155 @@ const initGalleryCaptions = async () => {
     <div class="caption-editor-info">
       <strong>Captions</strong>
       <span class="caption-status">Shared captions loaded. Edits save locally.</span>
+      <span class="caption-global-warning" aria-live="polite"></span>
+      <span class="caption-tags-updated" aria-live="polite"></span>
+      <span class="caption-tags-local" aria-live="polite"></span>
     </div>
     <div class="caption-editor-actions">
       <button type="button" class="caption-toggle">Edit captions</button>
       <button type="button" class="caption-export">Download captions</button>
+      <button type="button" class="tags-export">Download tags</button>
       <button type="button" class="caption-clear">Clear local edits</button>
     </div>
   `;
-  const editorToggle = document.createElement('button');
-  editorToggle.type = 'button';
-  editorToggle.className = 'caption-editor-toggle';
-  const setEditorToggleLabel = () => {
-    const isVisible = document.body.classList.contains('show-caption-editor');
-    editorToggle.textContent = isVisible ? 'Hide caption tools' : 'Show caption tools';
-  };
-  setEditorToggleLabel();
-  editorToggle.addEventListener('click', () => {
-    document.body.classList.toggle('show-caption-editor');
-    setEditorToggleLabel();
-  });
-
-  grid.insertAdjacentElement('beforebegin', editorToggle);
-  editorToggle.insertAdjacentElement('afterend', toolbar);
+  grid.insertAdjacentElement('beforebegin', toolbar);
 
   const captionEntries = [];
+  const tagEntries = [];
   const updateEmptyState = caption => {
     const empty = !caption.textContent.trim();
     caption.classList.toggle('is-empty', empty);
   };
+  const updateTagsEmptyState = (field, hasTags) => {
+    field.classList.toggle('is-empty', !hasTags);
+  };
+  const canEditTags = () => document.body.classList.contains('show-caption-editor');
+  const parseTags = value =>
+    String(value || '')
+      .split(/[,;\n]+/)
+      .map(tag => tag.trim())
+      .filter(Boolean);
+  const joinTags = values => values.join(', ');
+  const uniqueTags = values => {
+    const seen = new Set();
+    return values.filter(tag => {
+      const key = tag.toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+  let metaTagCache = [];
+  const EXCLUDE_TAG = 'Exclude';
+  const getAvailableTags = () => {
+    const set = new Set();
+    if (defaultTag) set.add(defaultTag);
+    metaTagCache.forEach(tag => set.add(tag));
+    Object.keys(tags).forEach(key => {
+      parseTags(tags[key]).forEach(tag => set.add(tag));
+    });
+    set.add(EXCLUDE_TAG);
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  };
+  const fetchMetaTags = async () => {
+    try {
+      const response = await fetch('data/gallery-meta.json', { cache: 'no-store' });
+      if (!response.ok) return [];
+      const data = await response.json();
+      if (!data || typeof data !== 'object') return [];
+      return Object.keys(data).map(label => {
+        const meta = data[label];
+        return meta && meta.title ? meta.title : label;
+      });
+    } catch (error) {
+      return [];
+    }
+  };
+  const syncTagSelectOptions = select => {
+    const options = getAvailableTags();
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">Add existing...</option>';
+    options.forEach(tag => {
+      const option = document.createElement('option');
+      option.value = tag;
+      option.textContent = tag;
+      select.appendChild(option);
+    });
+    select.value = options.includes(currentValue) ? currentValue : '';
+  };
+
+  function renderTags(entry) {
+    const tagList = parseTags(tags[entry.key]);
+    entry.tagsField.dataset.label = 'Categories';
+    entry.tagsField.innerHTML = '';
+    const hasExclude = tagList.some(tag => tag.toLowerCase() === EXCLUDE_TAG.toLowerCase());
+    const excludeToggle = document.createElement('button');
+    excludeToggle.type = 'button';
+    excludeToggle.className = `tag-pill tag-pill-exclude${hasExclude ? ' is-active' : ''}`;
+    excludeToggle.textContent = hasExclude ? 'Excluded' : 'Exclude from All Photos';
+    excludeToggle.setAttribute('aria-pressed', hasExclude ? 'true' : 'false');
+    excludeToggle.addEventListener('click', () => {
+      if (!canEditTags()) return;
+      if (hasExclude) {
+        const next = tagList.filter(tag => tag.toLowerCase() !== EXCLUDE_TAG.toLowerCase());
+        applyTagValue(entry, joinTags(next));
+      } else {
+        applyTagValue(entry, joinTags(uniqueTags([...tagList, EXCLUDE_TAG])));
+      }
+    });
+    entry.tagsField.appendChild(excludeToggle);
+    tagList.forEach(tag => {
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      pill.className = 'tag-pill';
+      pill.textContent = tag;
+      pill.addEventListener('click', () => {
+        if (!canEditTags()) return;
+        const next = tagList.filter(item => item.toLowerCase() !== tag.toLowerCase());
+        applyTagValue(entry, joinTags(next));
+      });
+      entry.tagsField.appendChild(pill);
+    });
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'tag-pill-input';
+    input.placeholder = 'Add category';
+    input.setAttribute('aria-label', 'Add category');
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ',') {
+        event.preventDefault();
+        const value = input.value.trim().replace(/^#+/, '');
+        if (!value) return;
+        applyTagValue(entry, joinTags(uniqueTags([...tagList, value])));
+        input.value = '';
+      }
+    });
+    input.addEventListener('blur', () => {
+      const value = input.value.trim().replace(/^#+/, '');
+      if (!value) return;
+      applyTagValue(entry, joinTags(uniqueTags([...tagList, value])));
+      input.value = '';
+    });
+    input.disabled = !canEditTags();
+    entry.tagsInput = input;
+    entry.tagsField.appendChild(input);
+
+    const select = document.createElement('select');
+    select.className = 'tag-pill-select';
+    select.setAttribute('aria-label', 'Add existing category');
+    syncTagSelectOptions(select);
+    select.addEventListener('change', () => {
+      const value = select.value;
+      if (!value) return;
+      applyTagValue(entry, joinTags(uniqueTags([...tagList, value])));
+      select.value = '';
+    });
+    select.disabled = !canEditTags();
+    entry.tagsSelect = select;
+    entry.tagsField.appendChild(select);
+    updateTagsEmptyState(entry.tagsField, tagList.length > 0);
+  }
 
   const images = Array.from(grid.querySelectorAll('img'));
   images.forEach(img => {
@@ -555,6 +800,26 @@ const initGalleryCaptions = async () => {
     updateEmptyState(caption);
     img.dataset.caption = caption.textContent;
 
+    const tagsField = document.createElement('div');
+    tagsField.className = 'gallery-tags';
+    const currentTags = parseTags(tags[key]);
+    const nextTags = new Set(currentTags);
+    (allTagsByKey[key] || []).forEach(tag => {
+      nextTags.add(tag);
+    });
+    if (defaultTag) {
+      nextTags.add(defaultTag);
+    }
+      const mergedTags = Array.from(nextTags);
+      if (mergedTags.length > 0 && mergedTags.join(', ') !== currentTags.join(', ')) {
+        tags[key] = joinTags(mergedTags);
+        if (!localTags[key]) {
+          localTags[key] = tags[key];
+        }
+        allTagsByKey[key] = parseTags(tags[key]);
+      }
+    img.dataset.tags = tags[key] || '';
+
     const media = document.createElement('div');
     media.className = 'gallery-media';
 
@@ -562,19 +827,30 @@ const initGalleryCaptions = async () => {
     figure.appendChild(media);
     media.appendChild(img);
     figure.appendChild(caption);
+    figure.appendChild(tagsField);
     captionEntries.push({ caption, key, img });
+    const tagEntry = { tagsField, key, img, tagsInput: null, tagsSelect: null };
+    tagEntries.push(tagEntry);
+    renderTags(tagEntry);
     addExifOverlay(figure, img, media);
   });
 
   const saveCaptions = () => {
     localStorage.setItem(storageKey, JSON.stringify(localCaptions));
   };
+  const saveTags = () => {
+    localStorage.setItem(tagsStorageKey, JSON.stringify(localTags));
+  };
 
   let isEditing = false;
   const toggleButton = toolbar.querySelector('.caption-toggle');
   const exportButton = toolbar.querySelector('.caption-export');
+  const exportTagsButton = toolbar.querySelector('.tags-export');
   const clearButton = toolbar.querySelector('.caption-clear');
   const status = toolbar.querySelector('.caption-status');
+  const globalWarning = toolbar.querySelector('.caption-global-warning');
+  const tagsUpdated = toolbar.querySelector('.caption-tags-updated');
+  const tagsLocal = toolbar.querySelector('.caption-tags-local');
 
   const updateEditingState = nextState => {
     isEditing = nextState;
@@ -586,6 +862,19 @@ const initGalleryCaptions = async () => {
       caption.setAttribute('aria-label', 'Caption');
       updateEmptyState(caption);
     });
+    tagEntries.forEach(entry => {
+      renderTags(entry);
+    });
+  };
+  const syncTagInputs = () => {
+    tagEntries.forEach(entry => {
+      if (entry.tagsInput) {
+        entry.tagsInput.disabled = !canEditTags();
+      }
+      if (entry.tagsSelect) {
+        entry.tagsSelect.disabled = !canEditTags();
+      }
+    });
   };
 
   captionEntries.forEach(({ caption, key, img }) => {
@@ -596,7 +885,10 @@ const initGalleryCaptions = async () => {
       } else {
         delete localCaptions[key];
       }
-      captions = { ...sharedCaptions, ...localCaptions };
+      captions = {
+        ...normalizeCaptions(sharedCaptions),
+        ...normalizeCaptions(localCaptions)
+      };
       window.galleryCaptionsByKey = captions;
       if (img) {
         img.dataset.caption = value;
@@ -606,6 +898,31 @@ const initGalleryCaptions = async () => {
       status.textContent = 'Saved locally. Download to publish.';
     });
   });
+
+  function applyTagValue(entry, value) {
+    const normalized = joinTags(uniqueTags(parseTags(value)));
+      if (normalized) {
+        localTags[entry.key] = normalized;
+        tags[entry.key] = normalized;
+        allTagsByKey[entry.key] = parseTags(normalized);
+      } else {
+        delete localTags[entry.key];
+        delete tags[entry.key];
+        delete allTagsByKey[entry.key];
+      }
+    window.galleryTagsByKey = tags;
+    if (entry.img) {
+      entry.img.dataset.tags = normalized;
+    }
+    renderTags(entry);
+    saveTags();
+    status.textContent = 'Saved locally. Download to publish.';
+    tagEntries.forEach(existing => {
+      if (existing.tagsSelect) {
+        syncTagSelectOptions(existing.tagsSelect);
+      }
+    });
+  }
 
   toggleButton.addEventListener('click', () => {
     updateEditingState(!isEditing);
@@ -624,10 +941,45 @@ const initGalleryCaptions = async () => {
     URL.revokeObjectURL(url);
   });
 
+  exportTagsButton.addEventListener('click', () => {
+    const normalizeTagValue = value => {
+      const list = Array.isArray(value) ? value : parseTags(value);
+      return joinTags(uniqueTags(list));
+    };
+    const exportTags = {};
+    Object.keys(allTagsByKey).forEach(key => {
+      const normalized = normalizeTagValue(allTagsByKey[key]);
+      if (normalized) {
+        exportTags[key] = normalized;
+      }
+    });
+    Object.keys(tags).forEach(key => {
+      const normalized = normalizeTagValue(tags[key]);
+      if (normalized) {
+        exportTags[key] = normalized;
+      } else {
+        delete exportTags[key];
+      }
+    });
+    const data = JSON.stringify(exportTags, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'all-tags.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    if (tagsLocal) {
+      tagsLocal.textContent = `Local export: ${new Date().toLocaleString()}`;
+    }
+  });
+
   clearButton.addEventListener('click', () => {
     if (!window.confirm('Clear local caption edits for this gallery?')) return;
     localCaptions = {};
-    captions = { ...sharedCaptions };
+    captions = { ...normalizeCaptions(sharedCaptions) };
     window.galleryCaptionsByKey = captions;
     captionEntries.forEach(({ caption, img }) => {
       caption.textContent = '';
@@ -637,7 +989,44 @@ const initGalleryCaptions = async () => {
       }
     });
     saveCaptions();
+
+    localTags = {};
+    tags = {};
+    window.galleryTagsByKey = tags;
+    tagEntries.forEach(entry => {
+      if (entry.img) {
+        entry.img.dataset.tags = '';
+      }
+      renderTags(entry);
+    });
+    saveTags();
     status.textContent = 'Local edits cleared.';
+  });
+
+  fetch('data/tags/all-tags.json', { method: 'HEAD', cache: 'no-store' })
+    .then(response => {
+      if (response.ok && globalWarning) {
+        globalWarning.textContent = 'Global tags enabled: per-gallery tag files are ignored.';
+      }
+      if (response.ok && tagsUpdated) {
+        const lastModified = response.headers.get('Last-Modified');
+        if (lastModified) {
+          const time = new Date(lastModified);
+          if (!Number.isNaN(time.valueOf())) {
+            tagsUpdated.textContent = `Tags updated: ${time.toLocaleString()}`;
+          }
+        }
+      }
+    })
+    .catch(() => {});
+
+  fetchMetaTags().then(tagsFromMeta => {
+    metaTagCache = tagsFromMeta;
+    tagEntries.forEach(entry => {
+      if (entry.tagsSelect) {
+        syncTagSelectOptions(entry.tagsSelect);
+      }
+    });
   });
 
   updateEditingState(false);

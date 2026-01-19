@@ -1,0 +1,98 @@
+{
+  "All Photos": {
+    "title": "All Photos",
+    "slug": "all-photos",
+    "description": "This gallery holds the entire archive. Landscapes, wildlife, experiments, quiet moments and near misses. Nothing filtered out, nothing dressed up.\n\nSome images belong together, others don\u2019t. That\u2019s the point. This is the work as it exists, not as it\u2019s been tidied.",
+    "order": 0
+  },
+  "Landscapes and Cityscapes": {
+    "title": "Landscapes and Cityscapes",
+    "slug": "landscapes-cityscapes",
+    "description": "Most of these images start long before I ever pick up the camera. Checking weather, watching the light, and returning to the same places until they finally behave. From empty Yorkshire hills to half-awake cities, this collection is about how familiar places feel when you catch them at the right moment, not how many miles you travelled to get there.",
+    "cover": "images/5%20shot%20manual%20stack-1.jpg",
+    "order": 1
+  },
+  "Night & Sky": {
+    "title": "Night & Sky",
+    "slug": "night-sky",
+    "description": "These photographs are built on planning more than luck. Moon phases, angles, weather windows and a lot of standing around in the dark hoping the clouds take the night off. Most are captured within short drives from home, chasing rare alignments rather than perfect conditions, and accepting that the best moments usually last about thirty seconds.",
+    "cover": "images/Holiday%20snaps%20%2875%20of%20167%29.jpg",
+    "order": 2
+  },
+  "Wildlife": {
+    "title": "Wildlife",
+    "description": "These images come from long periods of standing still in places both familiar and further afield. Birds, insects and the occasional reluctant mammal, photographed with long lenses and a lot of patience. Nothing staged, nothing chased. Just waiting quietly until something forgets I&#8217;m there.",
+    "cover": "images/Bambrough%20Castle%20%2813%20of%2021%29.jpg",
+    "order": 3
+  },
+  "Aerial": {
+    "title": "Aerial",
+    "description": "This is where it started. Early mornings with a DJI Mavic 2 Pro, learning how light behaves when you&#8217;re not standing in it. Aerial photography taught me to think in shapes, shadows and timing rather than just viewpoints. Most of the images here are about structure and scale, finding patterns that only exist for a few minutes before the sun moves on.",
+    "cover": "images/18%20Pods%20at%20sunrise.jpg",
+    "order": 4
+  },
+  "Lake District": {
+    "title": "Lake District",
+    "description": "Most visits start in the dark and end with cold hands and wet boots. The Lakes reward patience more than enthusiasm, especially at dawn when the water finally calms down and the fells stop pretending to be dramatic. These images are less about big views and more about quiet moments before the crowds remember the place exists.",
+    "cover": "images/Black%20and%20White%20final%20%281%20of%201%29.jpg",
+    "order": 5
+  },
+  "Scotland": {
+    "title": "Scotland",
+    "description": "Nothing here is convenient. Long drives, sideways rain, and light that appears without warning and vanishes just as fast. Scotland doesn&#8217;t give you photographs, it makes you work for them, but when everything briefly lines up the results feel earned in a way no easy location ever does.",
+    "cover": "images/Luskentyre%20long%20exp.jpg",
+    "order": 6
+  },
+  "Chicago": {
+    "title": "Chicago",
+    "description": "This collection is about scale and structure more than scenery. Hard lines, deep shadows and light that bounces between glass and steel like it&#8217;s trying to escape. It&#8217;s the opposite of the quiet hills I usually chase, but the same rules apply. Wait long enough and the city shows you a side most people walk straight past.",
+    "cover": "images/Chi%20Town%20%282%20of%2023%29.jpg",
+    "order": 7
+  },
+  "North East": {
+    "title": "North East",
+    "description": "This stretch of coast and countryside rarely behaves for the camera. Wind, haze and light that never quite commits, until it suddenly does. These images come from repeated returns to the same places, learning when to stop trying to make a photograph and start letting the place decide what it&#8217;s prepared to give.",
+    "cover": "images/Bambrough%20Castle%20%281%20of%201%29.jpg",
+    "order": 8
+  },
+  "Greece": {
+    "title": "Greece",
+    "description": "Everything feels brighter here. White walls, hard shadows, colours that look artificial even when they aren&#8217;t. These images are less about discovery and more about restraint, stepping back and letting the place do what it&#8217;s been perfecting for a few thousand years.",
+    "cover": "images/Apollo%20Temple-10.jpg",
+    "order": 9
+  },
+  "Peak District": {
+    "title": "Peak District",
+    "description": "Mam Tor and Winnats Pass are regular haunts, especially on those rare mornings when the valleys fill with cloud and the world finally shuts up. These photographs come from chasing inversions, misreading forecasts and turning up anyway, because sometimes the Peaks decide to reward stubbornness.",
+    "cover": "images/Mam%20Tor-2.jpg",
+    "order": 10
+  },
+  "Pets": {
+    "title": "Pets",
+    "description": "Not just Dexter. Friends&#8217; dogs, borrowed companions and the occasional animal that definitely didn&#8217;t agree to be photographed. These are small, chaotic moments rather than formal portraits, taken when everyone forgets the camera is there and behaves like themselves.",
+    "cover": "images/Day2%20%2818%20of%2039%29.jpg",
+    "order": 11
+  },
+  "Silhouettes": {
+    "title": "Silhouettes",
+    "description": "These images live or die by timing. A moonrise that&#8217;s a minute late, a cloud that drifts too far, a subject that refuses to stand still. When it works, it feels less like taking a photograph and more like briefly winning an argument with the sky.",
+    "cover": "images/2nd%20batch-6.jpg",
+    "order": 12
+  },
+  "Funghi": {
+    "title": "Funghi",
+    "description": "This is the slowest photography I do. Forest floors, damp mornings and kneeling in mud for things most people step over without noticing. The reward is in the details. Fragile structures, brief colours and a world that only seems to exist if you&#8217;re prepared to look for it properly.",
+    "cover": "images/Bunch%20of%20fungi%20%281%20of%201%29-3.jpg",
+    "order": 13
+  },
+  "Waterfalls": {
+    "title": "Waterfalls",
+    "description": "A small selection of waterfall images focused on flow, scale, and long exposure work. Less spectacle, more restraint."
+  },
+  "Family": {
+    "title": "Family",
+    "slug": "family",
+    "hidden": true,
+    "order": 100
+  }
+}

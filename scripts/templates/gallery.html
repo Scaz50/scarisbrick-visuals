@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chicago Gallery - Photography Portfolio</title>
+    <title>{{GALLERY_TITLE}} Gallery - Photography Portfolio</title>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WDYT5EG89R"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{GA_ID}}"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-WDYT5EG89R');
+      gtag('config', '{{GA_ID}}');
     </script>
 </head>
 <body>
@@ -28,35 +28,7 @@
 
             <div class="dropdown">
 
-            <a href="all-photos-gallery.html">All Photos</a>
-
-            <a href="landscapes-cityscapes-gallery.html">Landscapes and Cityscapes</a>
-
-            <a href="night-sky-gallery.html">Night &amp; Sky</a>
-
-            <a href="wildlife-gallery.html">Wildlife</a>
-
-            <a href="aerial-gallery.html">Aerial</a>
-
-            <a href="lake-district-gallery.html">Lake District</a>
-
-            <a href="scotland-gallery.html">Scotland</a>
-
-            <a href="chicago-gallery.html">Chicago</a>
-
-            <a href="north-east-gallery.html">North East</a>
-
-            <a href="greece-gallery.html">Greece</a>
-
-            <a href="peak-district-gallery.html">Peak District</a>
-
-            <a href="pets-gallery.html">Pets</a>
-
-            <a href="silhouettes-gallery.html">Silhouettes</a>
-
-            <a href="funghi-gallery.html">Funghi</a>
-
-            <a href="waterfalls-gallery.html">Waterfalls</a>
+{{NAV_ITEMS}}
 
             </div>
 
@@ -69,14 +41,9 @@
     </header>
     <main>
         <section class="gallery">
-            <h2>Chicago Gallery</h2>
+            <h2>{{GALLERY_HEADING}}</h2>
             <div class="grid">
-            <img src="images/Chi%20Town%20(2%20of%2023).jpg" alt="Millennium Park, Chicago" loading="lazy" decoding="async" fetchpriority="high" width="4903" height="3262">
-            <img src="images/Chi%20Town%20(20%20of%2023).jpg" alt="Magnificent Mile, Chicago" loading="lazy" decoding="async" fetchpriority="high" width="4903" height="3262">
-            <img src="images/Chi%20Town%20(22%20of%2023).jpg" alt="Michigan Avenue, Chicago" loading="lazy" decoding="async" fetchpriority="high" width="4949" height="2784">
-            <img src="images/Chi%20Town%20(3%20of%2023).jpg" alt="Millennium Park, Chicago" loading="lazy" decoding="async" fetchpriority="high" width="4903" height="3262">
-            <img src="images/Chi%20Town%20(5%20of%2023).jpg" alt="Chicago River" loading="lazy" decoding="async" fetchpriority="high" width="5333" height="2999">
-            <img src="images/Chicago%20Sign%20(1%20of%201).jpg" alt="Chicago Theatre" loading="lazy" decoding="async" fetchpriority="high" width="4904" height="3262">
+{{GALLERY_IMAGES}}
         </div>
         </section>
     </main>

@@ -498,9 +498,15 @@ section {
 
 .portfolio-sections {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 2.5rem;
   margin-top: 2rem;
+}
+
+@media (max-width: 760px) {
+  .portfolio-sections {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .album-card {
@@ -927,13 +933,14 @@ footer {
   flex-wrap: wrap;
 }
 
-body:not(.show-caption-editor) .caption-editor {
+.caption-editor {
   display: none;
 }
 
-body:not(.show-caption-editor) .caption-editor-toggle {
-  display: none;
+.show-caption-editor .caption-editor {
+  display: flex;
 }
+
 
 .caption-editor-toggle {
   border: 1px solid rgba(30, 31, 36, 0.2);
@@ -946,6 +953,28 @@ body:not(.show-caption-editor) .caption-editor-toggle {
   font-family: inherit;
   margin-bottom: 1rem;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.caption-global-warning {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+  color: #b85b1a;
+  font-weight: 600;
+}
+
+.caption-tags-updated {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--slate);
+}
+
+.caption-tags-local {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--slate);
 }
 
 .caption-editor-toggle:hover,
@@ -1017,9 +1046,60 @@ body:not(.show-exif-filters) .exif-filters {
   font-family: inherit;
   display: block;
   width: fit-content;
+  margin: 0;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.exif-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
   margin-bottom: 1rem;
   margin-top: 0.75rem;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.lens-note {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0;
+  margin-top: 0;
+  padding-left: 2.2rem;
+  font-family: 'Caveat', 'Comic Sans MS', cursive;
+  font-size: 1.8rem;
+  color: #5b4631;
+  position: relative;
+  transform: rotate(-1deg);
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+body.show-exif-filters .lens-note {
+  display: none;
+}
+
+.lens-note::before {
+  content: "";
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  width: 1.4rem;
+  border-top: 2px solid currentColor;
+  transform: translateY(-50%) rotate(-10deg);
+  transform-origin: left center;
+}
+
+.lens-note::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 8px solid currentColor;
+  transform: translateY(-50%) rotate(-10deg);
 }
 
 .exif-filters-toggle:hover,
@@ -1092,12 +1172,34 @@ body:not(.show-exif-filters) .exif-filters {
 
 .exif-lens-filter {
   gap: 0.5rem;
+  width: 100%;
+}
+
+.exif-lens-groups {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem 2rem;
+  width: 100%;
+  justify-items: center;
+}
+
+.exif-lens-group {
+  min-width: 0;
+  justify-self: stretch;
+}
+
+.exif-lens-group h4 {
+  font-family: var(--heading-font);
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+  color: var(--slate);
 }
 
 .exif-lens-buttons {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
 }
 
 .exif-lens-button {
@@ -1169,13 +1271,19 @@ body:not(.show-exif-filters) .exif-matches {
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1rem;
+  display: block;
+  column-count: 3;
+  column-gap: 1rem;
   position: relative;
   z-index: 0;
   justify-content: center;
   width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    column-count: 2;
+  }
 }
 
 @media (max-width: 700px) {
@@ -1184,7 +1292,7 @@ body:not(.show-exif-filters) .exif-matches {
   }
 
   .grid {
-    grid-template-columns: minmax(0, 1fr);
+    column-count: 1;
   }
 }
 
@@ -1193,6 +1301,9 @@ body:not(.show-exif-filters) .exif-matches {
   display: flex;
   flex-direction: column;
   position: relative;
+  break-inside: avoid;
+  margin-bottom: 1rem;
+  width: 100%;
 }
 
 .grid img {
@@ -1332,6 +1443,100 @@ body:not(.show-exif-filters) .exif-matches {
   border: 1px dashed rgba(30, 31, 36, 0.2);
   border-radius: 12px;
   padding: 0.45rem 0.7rem;
+}
+
+.gallery-tags {
+  display: none;
+  margin-top: 0.5rem;
+  color: var(--slate);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  min-height: 1.2em;
+}
+
+.gallery-tags.is-empty {
+  display: none;
+}
+
+.show-caption-editor .gallery-tags.is-empty {
+  display: flex;
+}
+
+.show-caption-editor .gallery-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1px dashed rgba(30, 31, 36, 0.2);
+  border-radius: 12px;
+  padding: 0.4rem 0.7rem;
+}
+
+.show-caption-editor .gallery-tags::before {
+  content: attr(data-label);
+  font-weight: 600;
+  color: var(--slate);
+  margin-right: 0.25rem;
+}
+
+.tag-pill {
+  border: 1px solid rgba(30, 31, 36, 0.15);
+  background: rgba(43, 138, 126, 0.08);
+  color: var(--ink);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.tag-pill:hover,
+.tag-pill:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.tag-pill-exclude {
+  background: rgba(184, 91, 26, 0.1);
+  border-color: rgba(184, 91, 26, 0.35);
+  color: #8a4413;
+}
+
+.tag-pill-exclude.is-active {
+  background: #b85b1a;
+  border-color: #8a4413;
+  color: #ffffff;
+}
+
+.tag-pill-input {
+  border: 1px dashed rgba(30, 31, 36, 0.2);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink);
+  font-size: 0.9rem;
+  min-width: 140px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.tag-pill-select {
+  border: 1px solid rgba(30, 31, 36, 0.2);
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 0.85rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.tag-pill-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(43, 138, 126, 0.15);
+}
+
+.tag-pill-input:focus {
+  outline: none;
 }
 
 .caption-editing .gallery-caption:focus {
