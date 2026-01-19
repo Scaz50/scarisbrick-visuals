@@ -307,7 +307,7 @@ function initExifFilters(data) {
         title: 'Telephoto Zoom',
         items: ['NIKKOR Z 70-200mm f/2.8 VR S', 'NIKKOR Z 100-400mm f/4.5-5.6 VR S']
       },
-      { title: 'Super TelePhoto Zoom', items: ['NIKKOR Z 180-600mm f/5.6-6.3 VR'] },
+      { title: 'Super Telephoto Zoom', items: ['NIKKOR Z 180-600mm f/5.6-6.3 VR'] },
       { title: 'Prime', items: ['NIKKOR Z 85mm f/1.8 S'] }
     ];
   const lensOrder = [
