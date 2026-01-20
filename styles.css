@@ -1278,8 +1278,8 @@ body.show-exif-filters .lens-note {
   font-weight: 600;
 }
 
-body:not(.show-exif-filters) .exif-summary,
-body:not(.show-exif-filters) .exif-matches {
+body:not(.show-exif-filters):not(.show-exif-results) .exif-summary,
+body:not(.show-exif-filters):not(.show-exif-results) .exif-matches {
   display: none;
 }
 

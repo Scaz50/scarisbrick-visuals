@@ -391,6 +391,7 @@ function initExifFilters(data) {
     };
 
     const active = isFilterActive(values);
+    document.body.classList.toggle('show-exif-results', active);
     let visible = 0;
     if (!isPortfolio && grid) {
       grid.classList.toggle('is-filtered', active);
