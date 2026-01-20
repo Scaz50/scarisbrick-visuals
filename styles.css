@@ -504,6 +504,10 @@ section {
 }
 
 @media (max-width: 760px) {
+  #portfolio {
+    overflow-x: hidden;
+  }
+
   .portfolio-sections {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -523,14 +527,21 @@ section {
 }
 
 .album-card.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  opacity: 1;
+  transform: none;
 }
 
-.album-card.reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+@media (max-width: 760px) {
+  .album-card.reveal {
+    opacity: 0;
+    transform: translateX(72px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .album-card.reveal.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1387,38 +1398,6 @@ body:not(.show-exif-filters):not(.show-exif-results) .exif-matches {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
 }
 
-.exif-info-hint {
-  position: absolute;
-  top: 10px;
-  right: 44px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.55rem;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.45);
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  pointer-events: none;
-  z-index: 3;
-  opacity: 0;
-  transform: translateX(6px);
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.exif-info-hint::after {
-  content: "->";
-  font-size: 0.85rem;
-  opacity: 0.9;
-}
-
-.gallery-media.show-exif-info .exif-info-hint {
-  opacity: 1;
-  transform: translateX(0);
-}
 
 .exif-info-button:hover,
 .exif-info-button:focus-visible {
@@ -1742,34 +1721,6 @@ body.lightbox-open .site-nav {
   letter-spacing: 0.01em;
 }
 
-.lightbox-exif-hint {
-  position: absolute;
-  top: 22px;
-  right: 96px;
-  padding: 0.3rem 0.55rem;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.35);
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  opacity: 0;
-  transform: translateX(6px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.lightbox-exif-hint::after {
-  content: "→";
-  margin-left: 0.35rem;
-  opacity: 0.7;
-}
-
-.lightbox.is-exif-open .lightbox-exif-hint {
-  opacity: 1;
-  transform: translateX(0);
-}
 
 .lightbox.is-exif-open .lightbox-exif {
   opacity: 1;

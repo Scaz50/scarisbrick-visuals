@@ -90,10 +90,6 @@ const addExifOverlay = (figure, img, media) => {
   overlayText.textContent = exposureLabel;
   overlay.appendChild(overlayText);
 
-  const hint = document.createElement('span');
-  hint.className = 'exif-info-hint';
-  hint.textContent = "Click 'i' to toggle exposure data off";
-
   infoButton.addEventListener('click', event => {
     event.preventDefault();
     event.stopPropagation();
@@ -107,7 +103,6 @@ const addExifOverlay = (figure, img, media) => {
   });
 
   media.appendChild(infoButton);
-  media.appendChild(hint);
   media.appendChild(overlay);
 };
 
@@ -1046,6 +1041,8 @@ if (albumLinks.length > 0) {
         .map(src => src.trim())
         .filter(Boolean);
       if (!img || images.length < 2) return null;
+      const href = link.getAttribute('href') || '';
+      const startOffset = href.includes('landscapes-cityscapes-gallery.html') ? 15 : 0;
       let frame = link.querySelector('.album-image-frame');
       let currentImg = img;
       let nextImg = link.querySelector('img.is-next');
@@ -1068,7 +1065,7 @@ if (albumLinks.length > 0) {
         preload.onload = () => loaded.add(src);
         preload.src = src;
       });
-      return { frame, currentImg, nextImg, images, loaded };
+      return { frame, currentImg, nextImg, images, loaded, startOffset };
     })
     .filter(Boolean);
 
@@ -1113,7 +1110,7 @@ if (albumLinks.length > 0) {
     const advanceAlbums = async () => {
       globalIndex += 1;
       const nextBatch = albums.map(album => {
-        const next = globalIndex % album.images.length;
+        const next = (globalIndex + album.startOffset) % album.images.length;
         return { album, src: album.images[next] };
       });
 
@@ -1202,6 +1199,7 @@ if (navBar) {
     link => !link.closest('.dropdown')
   );
   let activeLink = null;
+  let hoverLink = null;
 
   const updateUnderline = link => {
     const navRect = navBar.getBoundingClientRect();
@@ -1212,6 +1210,10 @@ if (navBar) {
   };
 
   const clearUnderline = () => {
+    if (hoverLink) {
+      updateUnderline(hoverLink);
+      return;
+    }
     if (activeLink) {
       updateUnderline(activeLink);
       return;
@@ -1279,18 +1281,22 @@ if (navBar) {
 
   navLinks.forEach(link => {
     link.addEventListener('mouseenter', () => {
-      activeLink = link;
+      hoverLink = link;
       updateUnderline(link);
     });
     link.addEventListener('focus', () => {
-      activeLink = link;
+      hoverLink = link;
       updateUnderline(link);
     });
   });
 
-  navBar.addEventListener('mouseleave', clearUnderline);
+  navBar.addEventListener('mouseleave', () => {
+    hoverLink = null;
+    clearUnderline();
+  });
   navBar.addEventListener('focusout', event => {
     if (!navBar.contains(event.relatedTarget)) {
+      hoverLink = null;
       clearUnderline();
     }
   });
@@ -1305,20 +1311,40 @@ if (navBar) {
 
 // Mobile scroll reveal for portfolio tiles
 const revealCards = Array.from(document.querySelectorAll('.album-card'));
-if (revealCards.length > 0 && window.matchMedia('(max-width: 900px)').matches) {
-  revealCards.forEach(card => card.classList.add('reveal'));
-  const observer = new IntersectionObserver(
-    entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
+if (revealCards.length > 0) {
+  const mobileQuery = window.matchMedia('(max-width: 760px)');
+  let revealObserver = null;
+
+  const applyMobileReveal = () => {
+    if (!mobileQuery.matches) {
+      if (revealObserver) {
+        revealObserver.disconnect();
+        revealObserver = null;
+      }
+      revealCards.forEach(card => {
+        card.classList.remove('reveal', 'is-visible');
       });
-    },
-    { threshold: 0.2 }
-  );
-  revealCards.forEach(card => observer.observe(card));
+      return;
+    }
+
+    revealCards.forEach(card => card.classList.add('reveal'));
+    if (!revealObserver) {
+      revealObserver = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            entry.target.classList.toggle('is-visible', entry.isIntersecting);
+          });
+        },
+        { threshold: 0.2 }
+      );
+    }
+
+    revealObserver.disconnect();
+    revealCards.forEach(card => revealObserver.observe(card));
+  };
+
+  applyMobileReveal();
+  mobileQuery.addEventListener('change', applyMobileReveal);
 }
 
 // Gallery lightbox
@@ -1330,7 +1356,6 @@ if (hasLightboxTargets) {
   lightbox.innerHTML = `
     <button class="lightbox-close" aria-label="Close">X</button>
     <button class="lightbox-info-toggle" aria-label="Show exposure details">i</button>
-    <div class="lightbox-exif-hint">Click 'i' to toggle exposure data off</div>
     <button class="lightbox-prev" aria-label="Previous">&lt;</button>
     <img src="" alt="Gallery image" />
     <div class="lightbox-caption" aria-live="polite"></div>
