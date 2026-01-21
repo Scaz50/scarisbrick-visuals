@@ -30,6 +30,19 @@ This will:
 If `data/tags/all-tags.json` exists, it becomes the single source of truth and
 the per-gallery tag files are ignored.
 
+## Direct save to repo (local server)
+
+If you want the in-browser editor to write straight to the repo files, run the
+local caption server and use the "Save to repo" button in the editor.
+
+```bash
+node scripts/caption-server.js
+```
+
+This writes:
+- `data/captions.json`
+- `data/tags/all-tags.json`
+
 ## Excluding images from All Photos
 
 Add the tag `Exclude` to any image you want omitted from the All Photos gallery.

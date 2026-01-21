@@ -628,17 +628,12 @@ const initGalleryCaptions = async () => {
   toolbar.className = 'caption-editor';
   toolbar.innerHTML = `
     <div class="caption-editor-info">
-      <strong>Captions</strong>
-      <span class="caption-status">Shared captions loaded. Edits save locally.</span>
-      <span class="caption-global-warning" aria-live="polite"></span>
-      <span class="caption-tags-updated" aria-live="polite"></span>
-      <span class="caption-tags-local" aria-live="polite"></span>
+      <strong>Metadata</strong>
+      <span class="caption-status" aria-live="polite"></span>
     </div>
     <div class="caption-editor-actions">
-      <button type="button" class="caption-toggle">Edit captions</button>
-      <button type="button" class="caption-export">Download captions</button>
-      <button type="button" class="tags-export">Download tags</button>
-      <button type="button" class="caption-clear">Clear local edits</button>
+      <button type="button" class="caption-toggle">Edit metadata</button>
+      <button type="button" class="caption-save">Save to repo</button>
     </div>
   `;
   grid.insertAdjacentElement('beforebegin', toolbar);
@@ -840,18 +835,15 @@ const initGalleryCaptions = async () => {
 
   let isEditing = false;
   const toggleButton = toolbar.querySelector('.caption-toggle');
-  const exportButton = toolbar.querySelector('.caption-export');
-  const exportTagsButton = toolbar.querySelector('.tags-export');
-  const clearButton = toolbar.querySelector('.caption-clear');
+  const saveRepoButton = toolbar.querySelector('.caption-save');
   const status = toolbar.querySelector('.caption-status');
-  const globalWarning = toolbar.querySelector('.caption-global-warning');
-  const tagsUpdated = toolbar.querySelector('.caption-tags-updated');
-  const tagsLocal = toolbar.querySelector('.caption-tags-local');
+  const localSaveBase = 'http://localhost:5179';
 
   const updateEditingState = nextState => {
     isEditing = nextState;
+    document.body.classList.toggle('show-caption-editor', isEditing);
     gallery.classList.toggle('caption-editing', isEditing);
-    toggleButton.textContent = isEditing ? 'Done editing' : 'Edit captions';
+    toggleButton.textContent = isEditing ? 'Done editing' : 'Edit metadata';
     captionEntries.forEach(({ caption }) => {
       caption.setAttribute('contenteditable', isEditing ? 'true' : 'false');
       caption.setAttribute('role', 'textbox');
@@ -924,20 +916,21 @@ const initGalleryCaptions = async () => {
     updateEditingState(!isEditing);
   });
 
-  exportButton.addEventListener('click', () => {
-    const data = JSON.stringify(captions, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `captions-${pageKey}.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+  const isFormField = target => {
+    if (!target) return false;
+    const tag = target.tagName ? target.tagName.toLowerCase() : '';
+    return tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable;
+  };
+
+  document.addEventListener('keydown', event => {
+    if (isFormField(event.target)) return;
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'm') {
+      event.preventDefault();
+      updateEditingState(!isEditing);
+    }
   });
 
-  exportTagsButton.addEventListener('click', () => {
+  const buildExportTags = () => {
     const normalizeTagValue = value => {
       const list = Array.isArray(value) ? value : parseTags(value);
       return joinTags(uniqueTags(list));
@@ -957,63 +950,38 @@ const initGalleryCaptions = async () => {
         delete exportTags[key];
       }
     });
-    const data = JSON.stringify(exportTags, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'all-tags.json';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-    if (tagsLocal) {
-      tagsLocal.textContent = `Local export: ${new Date().toLocaleString()}`;
+    return exportTags;
+  };
+
+  const postJson = async (path, payload) => {
+    const response = await fetch(`${localSaveBase}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      const message = result.error || `Request failed: ${response.status}`;
+      throw new Error(message);
+    }
+  };
+
+  saveRepoButton.addEventListener('click', async () => {
+    try {
+      saveRepoButton.disabled = true;
+      status.textContent = 'Saving captions and tags to repo...';
+      const exportTags = buildExportTags();
+      await postJson('/save-captions', captions);
+      await postJson('/save-tags', exportTags);
+      status.textContent = 'Saved to repo. Commit and push when ready.';
+    } catch (error) {
+      status.textContent = `Save failed. Is the local server running? (${error.message})`;
+    } finally {
+      saveRepoButton.disabled = false;
     }
   });
 
-  clearButton.addEventListener('click', () => {
-    if (!window.confirm('Clear local caption edits for this gallery?')) return;
-    localCaptions = {};
-    captions = { ...normalizeCaptions(sharedCaptions) };
-    window.galleryCaptionsByKey = captions;
-    captionEntries.forEach(({ caption, img }) => {
-      caption.textContent = '';
-      updateEmptyState(caption);
-      if (img) {
-        img.dataset.caption = '';
-      }
-    });
-    saveCaptions();
-
-    localTags = {};
-    tags = {};
-    window.galleryTagsByKey = tags;
-    tagEntries.forEach(entry => {
-      if (entry.img) {
-        entry.img.dataset.tags = '';
-      }
-      renderTags(entry);
-    });
-    saveTags();
-    status.textContent = 'Local edits cleared.';
-  });
-
   fetch('data/tags/all-tags.json', { method: 'HEAD', cache: 'no-store' })
-    .then(response => {
-      if (response.ok && globalWarning) {
-        globalWarning.textContent = 'Global tags enabled: per-gallery tag files are ignored.';
-      }
-      if (response.ok && tagsUpdated) {
-        const lastModified = response.headers.get('Last-Modified');
-        if (lastModified) {
-          const time = new Date(lastModified);
-          if (!Number.isNaN(time.valueOf())) {
-            tagsUpdated.textContent = `Tags updated: ${time.toLocaleString()}`;
-          }
-        }
-      }
-    })
     .catch(() => {});
 
   fetchMetaTags().then(tagsFromMeta => {
@@ -1461,14 +1429,39 @@ if (hasLightboxTargets) {
     setLightboxExif(target);
   }
 
-  document.addEventListener('click', event => {
-    const target = event.target.closest('.grid img, .exif-matches-grid img');
-    if (!target) return;
+  const getImageSrcKey = img => {
+    if (!img) return '';
+    return img.getAttribute('data-full') || img.getAttribute('src') || '';
+  };
+
+  document.addEventListener(
+    'click',
+    event => {
+      if (event.target.closest('.exif-info-button, .exif-info-overlay')) return;
+      if (event.target.closest('.lightbox')) return;
+    const imgTarget =
+      event.target.closest('.grid img, .exif-matches-grid img') ||
+      (event.target.closest('.gallery-media')
+        ? event.target.closest('.gallery-media').querySelector('img')
+        : null);
+    if (!imgTarget) return;
+    if (!imgTarget.closest('.grid') && !imgTarget.closest('.exif-matches-grid')) return;
     const images = getLightboxImages();
-    const index = images.indexOf(target);
-    if (index === -1) return;
+    let index = images.indexOf(imgTarget);
+    if (index === -1) {
+      const targetKey = getImageSrcKey(imgTarget);
+      if (targetKey) {
+        index = images.findIndex(img => getImageSrcKey(img) === targetKey);
+      }
+    }
+    if (index === -1) {
+      openLightbox(0, [imgTarget]);
+      return;
+    }
     openLightbox(index, images);
-  });
+    },
+    true
+  );
 
   closeBtn.addEventListener('click', closeLightbox);
   prevBtn.addEventListener('click', () => stepLightbox(-1));
