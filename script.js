@@ -167,16 +167,29 @@ function initExifFilters(data) {
   const applyCaptionsFromData = captionsData => {
     if (!captionsData || typeof captionsData !== 'object') return;
     const nextCaptions = {};
-    Object.keys(captionsData).forEach(pageKey => {
-      const entries = captionsData[pageKey];
-      if (!entries || typeof entries !== 'object') return;
-      Object.keys(entries).forEach(pathKey => {
+    const values = Object.values(captionsData);
+    const isFlatMap = values.some(value => typeof value === 'string');
+
+    if (isFlatMap) {
+      Object.keys(captionsData).forEach(pathKey => {
         const key = normalizePath(pathKey);
         if (key) {
-          nextCaptions[key] = entries[pathKey];
+          nextCaptions[key] = captionsData[pathKey];
         }
       });
-    });
+    } else {
+      Object.keys(captionsData).forEach(pageKey => {
+        const entries = captionsData[pageKey];
+        if (!entries || typeof entries !== 'object') return;
+        Object.keys(entries).forEach(pathKey => {
+          const key = normalizePath(pathKey);
+          if (key) {
+            nextCaptions[key] = entries[pathKey];
+          }
+        });
+      });
+    }
+
     allCaptionsByKey = nextCaptions;
     window.allGalleryCaptionsByKey = nextCaptions;
   };
@@ -240,6 +253,7 @@ function initExifFilters(data) {
   });
 
   const heading = gallery ? gallery.querySelector('h2') : portfolio.querySelector('h2');
+  const baseHeadingText = heading ? heading.textContent.trim() : '';
   if (heading) {
     const lensToggleRow = document.createElement('div');
     lensToggleRow.className = 'exif-toggle-row';
@@ -380,6 +394,8 @@ function initExifFilters(data) {
   const isFilterActive = values =>
     Object.values(values).some(value => value !== null && value !== '');
 
+  const getLensLabel = value => lensLabels.get(value) || value;
+
   const applyFilters = () => {
     const values = {
       lens: lensInput ? lensInput.value : ''
@@ -388,6 +404,9 @@ function initExifFilters(data) {
     const active = isFilterActive(values);
     document.body.classList.toggle('show-exif-results', active);
     let visible = 0;
+    if (isPortfolio && heading && baseHeadingText) {
+      heading.textContent = values.lens ? `${baseHeadingText} (${getLensLabel(values.lens)})` : baseHeadingText;
+    }
     if (!isPortfolio && grid) {
       grid.classList.toggle('is-filtered', active);
     }
