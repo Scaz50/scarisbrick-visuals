@@ -535,7 +535,8 @@ function initExifFilters(data) {
 };
 
 // Load EXIF data for future filtering.
-fetch('data/exif.json')
+const EXIF_DATA_URL = 'data/exif.json?v=20260131';
+fetch(EXIF_DATA_URL)
   .then(response => {
     if (!response.ok) {
       throw new Error(`Failed to load EXIF data: ${response.status}`);
